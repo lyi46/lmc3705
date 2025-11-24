@@ -1,1 +1,599 @@
-//cubism
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Library Energy Predictor — Weather Reactive</title>
+<style>
+  /* ---------- Layout: fixed 1920x1080 "canvas" ---------- */
+  :root {
+    --viewport-w: 1920px;
+    --viewport-h: 1080px;
+    --card-radius: 22px;
+    --accent: #3a6dff;
+    --muted: rgba(255,255,255,0.18);
+    --glass: rgba(255,255,255,0.30);
+  }
+
+  html,body {
+    height: 100%;
+    margin: 0;
+    background: #111;
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* center the 1920x1080 viewport */
+  .outer {
+    width: 100%;
+    height: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .viewport {
+    /* prefer the designed 1920x1080 canvas but never exceed the actual browser viewport
+       so the top of the page won't be clipped on short windows or mobile devices */
+    width: min(var(--viewport-w), 100%);
+    height: min(var(--viewport-h), calc(100vh - 40px));
+    max-width: 100%;
+    max-height: calc(100vh - 40px);
+    border-radius: 26px;
+    overflow: hidden;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+  }
+
+  /* colored overlay for readability */
+  .bg-overlay {
+    position:absolute;
+    inset:0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.22), rgba(0,0,0,0.48));
+    pointer-events:none;
+  }
+
+  /* screens (A: form, B: graph) */
+  .screen {
+    position:absolute;
+    inset:0;
+    padding: 70px;
+    box-sizing: border-box;
+    display:flex;
+    gap:40px;
+    transition: opacity 520ms ease, transform 520ms ease;
+    opacity:0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+  .screen.active {
+    opacity:1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* left column - header */
+  .left {
+    width: 640px;
+    color: #fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    gap:12px;
+  }
+  .title {
+    font-size:48px;
+    font-weight:700;
+    line-height:1;
+    margin:0;
+    letter-spacing:-0.5px;
+    text-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  }
+  .subtitle {
+    font-size:18px;
+    color: rgba(255,255,255,0.9);
+    max-width:520px;
+  }
+
+  /* right column - form card */
+  .card {
+    width: 640px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92));
+    padding: 28px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(4,8,18,0.25);
+    color:#0b1;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  label {
+    font-weight:600;
+    font-size:15px;
+    color:#1b2a3a;
+  }
+  select, input[type="time"], input[type="text"] {
+    padding:12px 14px;
+    border-radius:10px;
+    border: 1px solid rgba(15,32,63,0.06);
+    font-size:15px;
+    outline:none;
+    box-sizing: border-box;
+    background:white;
+  }
+  .row {
+    display:flex;
+    gap:12px;
+  }
+
+  .btn {
+    margin-top:10px;
+    appearance:none;
+    border: none;
+    background: linear-gradient(90deg,var(--accent), #1f4fff);
+    color:white;
+    padding:14px 18px;
+    font-size:17px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    box-shadow: 0 8px 30px rgba(58,109,255,0.18);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(58,109,255,0.20); }
+
+  /* SCREEN B: graph layout */
+  .graph-wrap {
+    width: calc(100% - 120px);
+    margin: auto;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:18px;
+  }
+  .graph-top {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:white;
+    padding: 12px 18px;
+    background: rgba(0,0,0,0.18);
+    border-radius:12px;
+    backdrop-filter: blur(6px);
+  }
+  .meta-left { display:flex; gap:14px; align-items:center; }
+  .meta-item { font-size:16px; color: #fff; opacity:0.95; }
+  .meta-title { font-weight:700; font-size:20px; }
+
+  /* Chart card */
+  .chart-card {
+    flex:1;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.92));
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 16px 40px rgba(2,8,24,0.32);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  /* timeline area */
+  .timeline {
+    position:relative;
+    height: 440px;
+    display:flex;
+    align-items:flex-end;
+    gap:6px;
+  }
+  .bar {
+    flex: 1;
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(180deg, rgba(158,197,255,1), rgba(120,160,255,1));
+    transition: height 700ms cubic-bezier(.2,.9,.2,1);
+    box-shadow: 0 6px 18px rgba(55,95,200,0.08);
+  }
+
+  /* red dot */
+  .red-dot {
+    position:absolute;
+    width: 18px;
+    height: 18px;
+    border-radius:50%;
+    background: #ff3b3b;
+    border: 3px solid #fff;
+    transform: translate(-50%, 50%);
+    box-shadow: 0 10px 30px rgba(255,59,59,0.24), 0 0 18px rgba(255,59,59,0.12) inset;
+    transition: left 900ms cubic-bezier(.2,.9,.2,1), bottom 900ms cubic-bezier(.2,.9,.2,1);
+  }
+
+  /* bottom legend */
+  .legend {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    color:#0b1a2b;
+  }
+
+  .small {
+    font-size:13px;
+    color: #0b1a2b;
+  }
+
+  /* back button (top-left in screenB) */
+  .back {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(0,0,0,0.38);
+    color:white;
+    cursor:pointer;
+    font-weight:700;
+    font-size:14px;
+  }
+
+  /* small helper */
+  .muted {
+    color: rgba(255,255,255,0.9);
+    opacity: 0.9;
+  }
+
+  /* responsiveness (still designed for 1920x1080 but won't break) */
+  @media (max-width: 1400px) {
+    .viewport { transform: scale(0.8); transform-origin:center; }
+  }
+</style>
+</head>
+<body>
+  <div class="outer">
+    <div id="viewport" class="viewport">
+      <div class="bg-overlay"></div>
+
+      <!-- SCREEN A: the form -->
+      <div id="screenA" class="screen active">
+        <div class="left">
+          <h1 class="title">Library Energy Predictor</h1>
+          <div class="subtitle">
+            Tell me your study group size and time range — I'll predict energy / occupancy across the period and show you where *you* land.
+            The visuals will match current weather to create context and immersion.
+          </div>
+        </div>
+
+        <div class="card">
+          <label>How many people in your party?</label>
+          <select id="partySize">
+            <option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option>
+            <option value="5">5+</option>
+          </select>
+
+          <div class="row">
+            <div style="flex:1">
+              <label>From (time)</label>
+              <input id="timeFrom" type="time" value="18:00">
+            </div>
+            <div style="flex:1">
+              <label>To (time)</label>
+              <input id="timeTo" type="time" value="20:00">
+            </div>
+          </div>
+
+          <label>Which floor?</label>
+          <select id="floor">
+            <option>1st Floor</option>
+            <option>2nd Floor</option>
+            <option>3rd Floor</option>
+            <option>Quiet Floor</option>
+          </select>
+
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button id="demoBtn" class="btn" onclick="goToGraph()">See Prediction</button>
+            <button id="clearBtn" class="btn" style="background:linear-gradient(90deg,#777,#444)" onclick="resetForm()">Reset</button>
+          </div>
+
+          <div style="margin-top:8px; font-size:13px; color:#243447; opacity:0.9;">
+            This demo uses a free weather API and Unsplash images to create a photographic background matching current conditions.
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN B: the graph -->
+      <div id="screenB" class="screen">
+        <div style="width:100%; display:flex; flex-direction:column; gap:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:14px; align-items:center;">
+              <button class="back" onclick="goBack()">← Back</button>
+              <div style="color:white; font-weight:700; font-size:18px;" id="screenTitle">Prediction</div>
+            </div>
+
+            <div style="display:flex; gap:14px; align-items:center;">
+              <div class="muted" id="weatherLabel">Weather</div>
+            </div>
+          </div>
+
+          <div class="graph-wrap">
+            <div class="graph-top">
+              <div class="meta-left">
+                <div class="meta-item meta-title" id="metaTime">Time Range</div>
+                <div class="meta-item" id="metaFloor">Floor</div>
+              </div>
+              <div class="meta-right">
+                <div class="small muted" id="metaParty">Party size</div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div id="timeline" class="timeline" aria-hidden="false"></div>
+              <div id="redDot" class="red-dot" style="left:-50px; bottom:0;"></div>
+
+              <div class="legend">
+                <div class="small">Predicted energy / occupancy (0–100)</div>
+                <div class="small" id="dotLabel">You</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+/*
+  WEATHER + UNSPLASH + PSEUDO-LIVE PREDICTION DEMO
+  - Replace OPENWEATHER_API_KEY with your own key.
+  - For demo we use Georgia Tech coords: lat 33.7756, lon -84.3963
+  - Unsplash photographic backgrounds are fetched with the 'source.unsplash.com' endpoint and a weather query.
+  - This code simulates predictions using a simple algorithm informed by "weather" and time-of-day patterns.
+*/
+
+/* ----------------- CONFIG ----------------- */
+const OPENWEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"; // <-- REPLACE with your key
+const LAT = 33.7756;
+const LON = -84.3963;
+
+/* ----------------- Utilities ----------------- */
+function qs(id){ return document.getElementById(id); }
+function toMinutes(t){ // "HH:MM" -> minutes since midnight
+  if(!t) return 0;
+  const [hh,mm] = t.split(":").map(x=>parseInt(x,10));
+  return hh*60 + mm;
+}
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+/* ----------------- Screen flow ----------------- */
+function goToGraph(){
+  // read inputs
+  const party = qs('partySize').value;
+  const from = qs('timeFrom').value;
+  const to = qs('timeTo').value;
+  const floor = qs('floor').value;
+
+  // basic validation: ensure from < to
+  const fMin = toMinutes(from), tMin = toMinutes(to);
+  if (fMin===tMin) {
+    alert("Please choose a time range where From and To are different.");
+    return;
+  }
+
+  // pass metadata to screen B
+  qs('metaTime').innerText = `${from} → ${to}`;
+  qs('metaFloor').innerText = floor;
+  qs('metaParty').innerText = `Party size: ${party}`;
+
+  // screen transition
+  qs('screenA').classList.remove('active');
+  qs('screenB').classList.add('active');
+
+  // start composition: get weather, then render chart
+  fetchWeatherAndPrepareBackground().then(weatherMain => {
+    // generate predicted timeline and animate
+    generatePredictedTimeline({party, from, to, floor, weatherMain});
+  }).catch(err=>{
+    console.error(err);
+    // fallback: still generate without weather
+    generatePredictedTimeline({party, from, to, floor, weatherMain: 'Clear'});
+  });
+}
+
+function goBack(){
+  qs('screenB').classList.remove('active');
+  qs('screenA').classList.add('active');
+
+  // reset background
+  qs('viewport').style.backgroundImage = '';
+  qs('weatherLabel').innerText = '';
+  // clear timeline quickly
+  qs('timeline').innerHTML = '';
+  qs('redDot').style.left = '-50px';
+}
+
+/* ----------------- Weather + Unsplash ----------------- */
+async function fetchWeatherAndPrepareBackground(){
+  // fetch weather from OpenWeatherMap (current)
+  if (!OPENWEATHER_API_KEY || OPENWEATHER_API_KEY === "YOUR_OPENWEATHERMAP_API_KEY") {
+    // No key supplied: choose a default weather type to keep demo working
+    console.warn("OpenWeatherMap API key not set — using default 'Clouds' for background.");
+    applyUnsplashBackgroundFor('Clouds');
+    qs('weatherLabel').innerText = 'Clouds (demo)';
+    return 'Clouds';
+  }
+
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    console.warn("Weather fetch failed, using default.");
+    applyUnsplashBackgroundFor('Clouds');
+    qs('weatherLabel').innerText = 'Clouds (fallback)';
+    return 'Clouds';
+  }
+  const json = await res.json();
+  const main = (json.weather && json.weather[0] && json.weather[0].main) ? json.weather[0].main : 'Clear';
+  applyUnsplashBackgroundFor(main);
+  qs('weatherLabel').innerText = `${main}`;
+  return main;
+}
+
+function applyUnsplashBackgroundFor(weatherMain){
+  // Map weather "main" to queries for Unsplash.
+  const map = {
+    Clear: "sunny+sky,clear+sky,blue+sky",
+    Clouds: "cloudy+sky,overcast",
+    Rain: "rain,raindrops,wet+window,rainy+city",
+    Drizzle: "light+rain,raindrops",
+    Thunderstorm: "storm,thunderstorm,stormy+sky",
+    Snow: "snow,snowy+landscape",
+    Mist: "mist,fog,misty+morning",
+    Smoke: "smoky+sky",
+    Haze: "hazy+sky",
+    Fog: "foggy+landscape",
+    Dust: "dusty+landscape"
+  };
+  const q = map[weatherMain] || "weather,sky";
+  // use Unsplash Source to fetch a random photographic image matching the query
+  // (1920x1080 requested)
+  const unsplashUrl = `https://source.unsplash.com/1920x1080/?${encodeURIComponent(q)}`;
+  // apply background with a subtle fade
+  const vp = qs('viewport');
+  // preload image then set to avoid flicker
+  const img = new Image();
+  img.onload = () => {
+    // apply background image (cover)
+    vp.style.backgroundImage = `linear-gradient(rgba(6,12,30,0.24), rgba(6,12,30,0.32)), url("${unsplashUrl}")`;
+  };
+  img.onerror = () => {
+    console.warn("Unsplash image failed — using fallback color.");
+    vp.style.backgroundImage = 'linear-gradient(180deg, #10213a, #18305b)';
+  };
+  img.src = unsplashUrl;
+}
+
+/* ----------------- Prediction / Timeline generation ----------------- */
+function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
+  const container = qs('timeline');
+  container.innerHTML = '';
+
+  // produce N samples (e.g., 48 across the time range)
+  const samples = 48;
+  const startMinutes = toMinutes(from);
+  const endMinutes = toMinutes(to);
+
+  // normalize direction (if end < start assume next day)
+  const totalRange = (endMinutes > startMinutes) ? (endMinutes - startMinutes) : (endMinutes + 24*60 - startMinutes);
+
+  // For the visual timeline we will synthesize a pattern across the chosen time range
+  // Algorithm: base sinusoid by time-of-day, modulate by party size and weather.
+  const partyFactor = Math.min(1.6, 1 + (Math.max(1,parseInt(party||1)) - 1) * 0.14);
+  const weatherBoostMap = {
+    Clear: 0.9, Clouds: 1.05, Rain: 1.18, Drizzle:1.12, Thunderstorm:1.25, Snow:1.1, Mist:1.0
+  };
+  const weatherFactor = weatherBoostMap[weatherMain] || 1.0;
+
+  // center time-of-day mean (use midpoint of selected range)
+  const midMinutes = (startMinutes + (totalRange/2)) % (24*60);
+  // convert to a 0-1 day fraction
+  const midFrac = midMinutes / (24*60);
+
+  // amplitude baseline (0..100)
+  const baseAmp = 36;
+  const noiseSeed = Math.random() * 1000;
+
+  // generate array
+  const values = new Array(samples).fill(0).map((_, i) => {
+    const frac = i / (samples - 1); // 0..1 across range
+    // map to absolute minutes in day
+    const minute = (startMinutes + frac * totalRange) % (24*60);
+    const dayFrac = minute / (24*60);
+
+    // sinusoidal daily rhythm (students often peak late afternoon/evening)
+    // use cosine to simulate ebb/flow; shift towards selected midpoint
+    const rhythm = Math.cos((dayFrac - 0.5) * Math.PI * 2 * 0.75) * 0.5 + 0.5; // 0..1
+
+    // distance from the selected midpoint -> higher near midpoint
+    const proximity = Math.max(0, 1 - Math.abs(dayFrac - midFrac) * 3.6);
+
+    // small random noise that is consistent-ish
+    const noise = (Math.sin((i + noiseSeed) * 0.78) + Math.random()*0.6) * 6;
+
+    // final composition
+    let v = baseAmp * rhythm * (0.9 + 0.9 * proximity) * partyFactor * weatherFactor;
+    v += noise;
+    v = clamp(Math.round(v), 6, 98);
+    return v;
+  });
+
+  // render bars
+  const max = Math.max(...values);
+  values.forEach(v => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    // set initial small height and animate to height for smoother entrance
+    bar.style.height = '4px';
+    container.appendChild(bar);
+    // animate to final height after a frame
+    requestAnimationFrame(() => {
+      bar.style.height = (v / 100 * 100) + '%';
+    });
+  });
+
+  // compute selected "you" position between start & end
+  // We'll take the user's "from" time as the start and place the red dot at a representative time:
+  // We choose the midpoint of user's requested interval for the "you" marker.
+  const userMidMinutes = (startMinutes + totalRange/2) % (24*60);
+  const fracOfRange = ((userMidMinutes - startMinutes + 24*60) % (24*60)) / totalRange;
+  const indexFloat = fracOfRange * (values.length - 1);
+  const index = Math.round(indexFloat);
+  const dot = qs('redDot');
+
+  // position the dot above the selected bar, animate into place
+  // compute left: find left offset of the bar element
+  // after bars are laid out (next frame)
+  requestAnimationFrame(() => {
+    const bars = container.querySelectorAll('.bar');
+    if (!bars || bars.length === 0) {
+      dot.style.left = '-50px';
+      return;
+    }
+    const targetBar = bars[index];
+    const rect = targetBar.getBoundingClientRect();
+    const parentRect = container.getBoundingClientRect();
+    // compute center position relative to parent
+    const leftPx = (rect.left + rect.right) / 2 - parentRect.left;
+    const leftPercent = (leftPx / parentRect.width) * 100;
+    const bottomPercent = values[index];
+
+    dot.style.left = leftPercent + '%';
+    dot.style.bottom = bottomPercent + '%';
+    // add a little pulse animation
+    dot.animate([
+      { transform: 'translate(-50%, 50%) scale(0.9)', opacity: 0.95 },
+      { transform: 'translate(-50%, 50%) scale(1.12)', opacity: 1 },
+      { transform: 'translate(-50%, 50%) scale(1.0)', opacity: 1 }
+    ], { duration: 900, easing: 'cubic-bezier(.2,.9,.2,1)' });
+  });
+
+  // label the chart and dot
+  qs('dotLabel').innerText = `You · ≈ ${values[index]}% energy/occupancy`;
+}
+
+/* ----------------- Helpers ----------------- */
+function resetForm(){
+  qs('partySize').value = '1';
+  qs('timeFrom').value = '18:00';
+  qs('timeTo').value = '20:00';
+  qs('floor').value = '1st Floor';
+}
+
+/* ----------------- Demo note ----------------- */
+// For local testing without an API key, demo still runs but uses a default photographic query (Clouds).
+// To use live weather, sign up at https://openweathermap.org/ and put your API key in OPENWEATHER_API_KEY.
+// In production, put the key behind a server endpoint to avoid leaking it client-side.
+
+</script>
+</body>
+</html>
