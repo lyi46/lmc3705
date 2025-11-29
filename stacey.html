@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Fortune Book of Price Gilbert</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Optional Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #05090c;
+            --yellow-light: #f7f7a4;
+            --orange-main: #d9972f;
+            --text-light: #fff7c8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-dark);
+            font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--yellow-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 1360px;
+            padding: 32px 40px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .frame {
+            width: 90vw;
+            aspect-ratio: 16 / 9;
+            background: var(--bg-dark);
+            display: flex;
+            gap: 40px;
+            padding: 32px;
+        }
+
+        /* LEFT COLUMN ------------------------------------------------------ */
+        .left {
+            flex: 0 0 36%;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .arrow-pill {
+            background: var(--yellow-light);
+            color: var(--orange-main);
+            border-radius: 999px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            font-weight: 700;
+        }
+
+        .title-card {
+            background: var(--orange-main);
+            border-radius: 64px;
+            padding: 40px 36px 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .title-icon {
+            font-size: 84px;
+            line-height: 1;
+        }
+
+        .title-text {
+            font-size: 56px;
+            line-height: 0.9;
+            font-weight: 700;
+            color: var(--yellow-light);
+        }
+
+        /* RIGHT COLUMN ----------------------------------------------------- */
+        .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .hero-image {
+            border-radius: 48px;
+            overflow: hidden;
+            width: 100%;
+            height: 360px;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cta-pill {
+            background: var(--orange-main);
+            border-radius: 999px;
+            padding: 24px 40px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--yellow-light);
+        }
+
+        .cta-button {
+            align-self: flex-end;
+            background: var(--yellow-light);
+            border-radius: 999px;
+            padding: 22px 64px;
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--orange-main);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            background: #fff8bf;
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* RESPONSIVE ------------------------------------------------------- */
+        @media (max-width: 960px) {
+            .page {
+                flex-direction: column;
+                padding: 24px;
+            }
+
+            .left {
+                flex-basis: auto;
+            }
+
+            .title-text {
+                font-size: 40px;
+            }
+
+            .hero-image {
+                height: 260px;
+            }
+
+            .cta-pill {
+                font-size: 20px;
+                padding: 20px 24px;
+            }
+
+            .cta-button {
+                font-size: 28px;
+                padding: 18px 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <!-- LEFT SIDE -->
+        <section class="left">
+            <div class="arrow-pill">
+                &rarr;
+            </div>
+
+            <div class="title-card">
+                <div class="title-icon">*</div>
+                <h1 class="title-text">
+                    The Fortune<br>
+                    Book of<br>
+                    Price<br>
+                    Gilbert
+                </h1>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDE -->
+        <section class="right">
+            <div class="hero-image">
+                <!-- Replace src with your actual image file -->
+                <img src="img/price-gilbert.jpg" alt="Students studying in Price Gilbert Library">
+            </div>
+
+            <div class="cta-pill">
+                Don't know where to study? Let the Fortune Book guide you!
+            </div>
+
+            <button class="cta-button">
+                Click here
+            </button>
+        </section>
+    </main>
+</body>
+</html>
