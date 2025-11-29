@@ -12,8 +12,8 @@
         :root {
             --bg-dark: #05090c;
             --yellow-light: #f7f7a4;
-            --orange-main: #d9972f;
-            --text-light: #fff7c8;
+            --orange-main: #D99B2B;
+            --text-light: #FAFBAE;
         }
 
         * {
@@ -249,8 +249,7 @@
         .fortune-slide {
             justify-content: center;
             align-items: center;
-            position: relative;
-            overflow: hidden;         /* keep sparkles inside the frame */
+            overflow: hidden;
         }
 
         .fortune-layout {
@@ -331,39 +330,37 @@
             height: auto;
         }
 
-        /* sparkles / asterisks in background */
         .sparkle {
             position: absolute;
             color: var(--yellow-light);
             pointer-events: none;
             font-weight: 700;
+            z-index: 3;  
         }
 
-        .sparkle.large { font-size: 52px; }
+        .sparkle.large  { font-size: 52px; }
         .sparkle.medium { font-size: 36px; }
-        .sparkle.small { font-size: 23px; }
+        .sparkle.small  { font-size: 23px; }
 
         .sparkle-1 { top: 18%; left: 10%; } 
         .sparkle-2 { top: 18%; right: 10%; } 
-        .sparkle-3 { bottom: 20%; left: 18%; } 
-        .sparkle-4 { bottom: 22%; right: 18%; } 
-        .sparkle-5 { top: 8%; left: 51%; } 
-        .sparkle-6 { top: 22%; right: 48%; }  
-        .sparkle-7 { top: 18%; left: 28%; } 
-        .sparkle-8 { top: 18%; right: 28%; }  
+        .sparkle-3 { bottom: 20%; left: 18%; }
+        .sparkle-4 { bottom: 22%; right: 18%; }  
+        .sparkle-5 { top: 8%; left: 50%; } 
+        .sparkle-6 { top: 25%; right: 28%; }
 
         .fortune-arrow {
             position: absolute;
             right: 40px;
             bottom: 32px;
-            width: 130px;
-            height: 68px;
+            width: 120px;
+            height: 64px;
             background: var(--orange-main);
             border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 38px;
             color: var(--yellow-light);
             cursor: pointer;
         }
@@ -372,7 +369,6 @@
         .qr-slide {
             justify-content: center;
             align-items: center;
-            position: relative;
         }
 
         .qr-row {
@@ -421,14 +417,14 @@
             position: absolute;
             right: 40px;
             bottom: 32px;
-            width: 130px;
-            height: 68px;
+            width: 120px;
+            height: 64px;
             background: var(--orange-main);
             border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 38px;
             color: var(--yellow-light);
             cursor: pointer;
         }
@@ -525,8 +521,6 @@
         <span class="sparkle small sparkle-4">✦</span>
         <span class="sparkle small sparkle-5">✦</span>
         <span class="sparkle small sparkle-6">*</span>
-        <span class="sparkle medium sparkle-7">✦</span>
-        <span class="sparkle medium sparkle-8">*</span>
 
         <div class="fortune-layout">
             <div class="thought-bubble">
@@ -534,8 +528,6 @@
                 If anyone breathes too loud near you today, you might ascend.
                 Go to 3rd floor at the monitor space where even your thoughts whisper.
             </div>
-
-            <!-- little thought bubbles down to the book -->
             <div class="bubble-chain">
                 <div class="bubble-dot.big"></div>
                 <div class="bubble-dot.small"></div>
@@ -545,8 +537,6 @@
                 <img src="img/book-open.png" alt="Open book">
             </div>
         </div>
-
-        <!-- arrow -> next page -->
         <div class="fortune-arrow" onclick="showSlide(8)">
             &rarr;
         </div>
@@ -563,8 +553,6 @@
         <span class="sparkle small sparkle-4">✦</span>
         <span class="sparkle small sparkle-5">✦</span>
         <span class="sparkle small sparkle-6">*</span>
-        <span class="sparkle medium sparkle-7">✦</span>
-        <span class="sparkle medium sparkle-8">*</span>
 
         <div class="fortune-layout">
             <div class="thought-bubble">
@@ -592,8 +580,6 @@
         <span class="sparkle small sparkle-4">✦</span>
         <span class="sparkle small sparkle-5">✦</span>
         <span class="sparkle small sparkle-6">*</span>
-        <span class="sparkle medium sparkle-7">✦</span>
-        <span class="sparkle medium sparkle-8">*</span>
 
         <div class="fortune-layout">
             <div class="thought-bubble">
@@ -621,8 +607,6 @@
         <span class="sparkle small sparkle-4">✦</span>
         <span class="sparkle small sparkle-5">✦</span>
         <span class="sparkle small sparkle-6">*</span>
-        <span class="sparkle medium sparkle-7">✦</span>
-        <span class="sparkle medium sparkle-8">*</span>
 
         <div class="fortune-layout">
             <div class="thought-bubble">
@@ -672,5 +656,6 @@
 
 </body>
 </html>
+
 
 
