@@ -223,10 +223,19 @@
             cursor: pointer;
         }
 
+        /* only the image animates */
         .book-card img {
             width: 200px;
             height: auto;
+            transition: transform 0.2s ease, filter 0.2s ease;
         }
+
+        /* hover: image floats + glows, number stays still */
+        .book-card:hover img {
+            transform: translateY(-12px) scale(1.05);
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45));
+        }
+
 
         .book-number {
             margin-top: 12px;
@@ -283,6 +292,69 @@
             color: var(--yellow-light);
             cursor: pointer;
         }
+
+        /* ================= QR SLIDE (slide 8) ================= */
+        .qr-slide {
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .qr-row {
+            display: flex;
+            gap: 120px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qr-card {
+            background: var(--orange-main);
+            padding: 48px 40px 32px;
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 360px;
+        }
+
+        .qr-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: black;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .qr-img {
+            width: 230px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .qr-scan {
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--yellow-light);
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .qr-arrow {
+            position: absolute;
+            right: 48px;
+            bottom: 40px;
+            width: 140px;
+            height: 74px;
+            background: var(--orange-main);
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: var(--yellow-light);
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -442,6 +514,29 @@
 
         <!-- arrow -> back to book selection (or change to 1 to go home) -->
         <div class="fortune-arrow" onclick="showSlide(8)">
+            &rarr;
+        </div>
+    </section>
+
+    <!-- SLIDE 8: QR Codes -->
+    <section id="slide8" class="slide qr-slide">
+        <div class="qr-row">
+
+            <div class="qr-card">
+                <div class="qr-title">Want to see real-time<br>crowd levels?</div>
+                <img src="img/qr.png" class="qr-img">
+                <div class="qr-scan">scan here</div>
+            </div>
+
+            <div class="qr-card">
+                <div class="qr-title">Want to give<br>feedback?</div>
+                <img src="img/qr.png" class="qr-img">
+                <div class="qr-scan">scan here</div>
+            </div>
+
+        </div>
+
+        <div class="qr-arrow" onclick="showSlide(1)">
             &rarr;
         </div>
     </section>
