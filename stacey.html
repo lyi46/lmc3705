@@ -36,47 +36,48 @@
         /* 16:9 wrapper for all slides */
         .frame {
             width: 90vw;
+            max-width: 1360px;
             aspect-ratio: 16 / 9;
             background: var(--bg-dark);
             position: relative;
+            margin: auto;
         }
 
-        /* Generic slide container */
         .slide {
             position: absolute;
             inset: 0;
-            padding: 32px 40px;
-            display: none;           /* hidden by default */
+            padding: 24px 32px;
+            display: none;
         }
 
         .slide.active {
-            display: flex;          /* visible slide */
+            display: flex; 
         }
 
         /* =============== SLIDE 1 (start page) ================= */
         .page-layout {
             width: 100%;
+            height: 100%;
             display: flex;
-            gap: 40px;
+            gap: 32px;
         }
 
-        /* LEFT COLUMN ------------------------------------------------------ */
         .left {
             flex: 0 0 36%;
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 20px;
         }
 
         .arrow-pill {
             background: var(--yellow-light);
             color: var(--orange-main);
             border-radius: 999px;
-            height: 150px;
+            height: 130px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 80px;
+            font-size: 72px;
             font-weight: 700;
         }
 
@@ -87,16 +88,17 @@
             display: flex;
             flex-direction: column;
             gap: 28px;
+            flex: 1;
         }
 
         .title-icon {
-            font-size: 84px;
+            font-size: 72px;
             line-height: 1;
         }
 
         .title-text {
-            font-size: 56px;
-            line-height: 0.9;
+            font-size: 78px;
+            line-height: 0.95;
             font-weight: 700;
             color: var(--yellow-light);
         }
@@ -106,14 +108,14 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 20px;
         }
 
         .hero-image {
-            border-radius: 48px;
+            border-radius: 40px;
             overflow: hidden;
             width: 100%;
-            height: 360px;
+            height: 85%; /* relative to slide height */
         }
 
         .hero-image img {
@@ -128,26 +130,26 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 16px;
+            gap: 18px;
+            margin-top: auto;
         }
-
         .cta-pill {
             background: var(--orange-main);
             border-radius: 999px;
-            padding: 24px 40px;
-            width: 100%;                 /* full width so button aligns to right edge */
+            padding: 20px 56px;
             text-align: center;
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 600;
             color: var(--yellow-light);
+            max-width: 70%;          /* shorter pill, not full width */
+            align-self: flex-end;    /* right-align pill like the button */
         }
-
         .cta-button {
             align-self: flex-end;
             background: var(--yellow-light);
             border-radius: 999px;
-            padding: 22px 64px;
-            font-size: 40px;
+            padding: 18px 48px;
+            font-size: 32px;
             font-weight: 700;
             color: var(--orange-main);
             border: none;
@@ -174,16 +176,16 @@
 
         .instructions-box {
             background: var(--yellow-light);
-            padding: 48px 80px;
-            border-radius: 64px;
+            padding: 40px 64px;
+            border-radius: 56px;
             max-width: 70%;
             text-align: center;
             color: var(--orange-main);
-            font-size: 28px;
+            font-size: 24px;
         }
 
         .instructions-title {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
             margin-bottom: 16px;
             text-decoration: underline;
@@ -191,16 +193,16 @@
 
         .instructions-arrow {
             position: absolute;
-            right: 48px;
-            bottom: 40px;
-            width: 130px;
-            height: 70px;
+            right: 40px;
+            bottom: 32px;
+            width: 120px;
+            height: 64px;
             background: var(--orange-main);
             border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 42px;
+            font-size: 38px;
             color: var(--yellow-light);
             cursor: pointer;
         }
@@ -213,7 +215,7 @@
 
         .books-row {
             display: flex;
-            gap: 64px;
+            gap: 56px;
         }
 
         .book-card {
@@ -236,10 +238,9 @@
             filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45));
         }
 
-
         .book-number {
-            margin-top: 12px;
-            font-size: 24px;
+            margin-top: 10px;
+            font-size: 28px;
             color: var(--orange-main);
             font-weight: 700;
         }
@@ -249,6 +250,7 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            overflow: hidden;         /* keep sparkles inside the frame */
         }
 
         .fortune-layout {
@@ -257,38 +259,111 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;  /* start from top */
+            padding-top: 90px;            /* pushes bubble down */
+            gap: 40px;
         }
 
+        /* cloud-shaped thought bubble */
         .thought-bubble {
+            position: relative;
             background: var(--yellow-light);
             color: var(--orange-main);
-            border-radius: 999px;
-            padding: 40px 80px;
+            padding: 40px 120px;
             max-width: 70%;
             text-align: center;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 40px;
+            border-radius: 999px;
         }
 
+        /* extra “lobes” to make it feel like a cloud */
+        .thought-bubble::before,
+        .thought-bubble::after {
+            content: "";
+            position: absolute;
+            background: var(--yellow-light);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .thought-bubble::before {
+            width: 260px;
+            height: 160px;
+            top: -60px;
+            left: 12%;
+        }
+
+        .thought-bubble::after {
+            width: 260px;
+            height: 160px;
+            top: -60px;
+            right: 12%;
+        }
+
+        /* small bubbles between cloud and book */
+        .bubble-chain {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: -10px;
+        }
+
+        .bubble-dot {
+            background: var(--yellow-light);
+            border-radius: 50%;
+        }
+
+        .bubble-dot.big {
+            width: 22px;
+            height: 22px;
+        }
+
+        .bubble-dot.small {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* book icon */
         .fortune-book-icon img {
-            width: 230px;
+            width: 220px;
             height: auto;
         }
 
+        /* sparkles / asterisks in background */
+        .sparkle {
+            position: absolute;
+            color: var(--yellow-light);
+            pointer-events: none;
+            font-weight: 700;
+        }
+
+        .sparkle.large { font-size: 52px; }
+        .sparkle.medium { font-size: 36px; }
+        .sparkle.small { font-size: 23px; }
+
+        .sparkle-1 { top: 18%; left: 10%; } 
+        .sparkle-2 { top: 18%; right: 10%; } 
+        .sparkle-3 { bottom: 20%; left: 18%; } 
+        .sparkle-4 { bottom: 22%; right: 18%; } 
+        .sparkle-5 { top: 8%; left: 51%; } 
+        .sparkle-6 { top: 22%; right: 48%; }  
+        .sparkle-7 { top: 18%; left: 28%; } 
+        .sparkle-8 { top: 18%; right: 28%; }  
+
         .fortune-arrow {
             position: absolute;
-            right: 48px;
-            bottom: 40px;
-            width: 140px;
-            height: 74px;
+            right: 40px;
+            bottom: 32px;
+            width: 130px;
+            height: 68px;
             background: var(--orange-main);
             border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 42px;
+            font-size: 40px;
             color: var(--yellow-light);
             cursor: pointer;
         }
@@ -301,60 +376,62 @@
         }
 
         .qr-row {
+            width: 100%;
             display: flex;
-            gap: 120px;
-            justify-content: center;
+            justify-content: space-evenly;
             align-items: center;
+            gap: 48px;
         }
 
         .qr-card {
             background: var(--orange-main);
-            padding: 48px 40px 32px;
+            padding: 32px 32px 24px;
             border-radius: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 360px;
+            flex-basis: 32%;
+            max-width: 420px;
         }
 
         .qr-title {
-            font-size: 36px;
+            font-size: 30px;
             font-weight: 700;
             color: black;
             text-align: center;
             margin-bottom: 16px;
+            line-height: 1.1;
         }
 
         .qr-img {
-            width: 230px;
+            width: 220px;
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .qr-scan {
-            font-size: 40px;
+            font-size: 32px;
             font-weight: 700;
             color: var(--yellow-light);
             text-align: center;
-            margin-top: 8px;
+            margin-top: 4px;
         }
 
         .qr-arrow {
             position: absolute;
-            right: 48px;
-            bottom: 40px;
-            width: 140px;
-            height: 74px;
+            right: 40px;
+            bottom: 32px;
+            width: 130px;
+            height: 68px;
             background: var(--orange-main);
             border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 42px;
+            font-size: 40px;
             color: var(--yellow-light);
             cursor: pointer;
         }
-
     </style>
 </head>
 <body>
@@ -383,16 +460,14 @@
             <!-- RIGHT SIDE -->
             <section class="right">
                 <div class="hero-image">
-                    <!-- Replace src with your actual image file -->
                     <img src="img/price-gilbert.jpg" alt="Students studying in Price Gilbert Library">
                 </div>
 
                 <div class="cta-row">
                     <div class="cta-pill">
-                        Don't know where to study? Let the Fortune Book guide you!
+                        Don't know where to study? <br> Let the Fortune Book guide you!
                     </div>
 
-                    <!-- Click -> go to Instructions -->
                     <button class="cta-button" onclick="showSlide(2)">
                         Click here
                     </button>
@@ -407,10 +482,9 @@
             <div class="instructions-title">Instructions</div>
             Choose one book based on your vibe! When they click the book,
             it will reveal your “study destiny” for today. Follow the recommendation
-            and enjoy the productivity boost
+            and enjoy the productivity boost.
         </div>
 
-        <!-- Next arrow -> go to book choices -->
         <div class="instructions-arrow" onclick="showSlide(3)">
             &rarr;
         </div>
@@ -419,7 +493,6 @@
     <!-- SLIDE 3: Four books to choose -->
     <section id="slide3" class="slide books-slide">
         <div class="books-row">
-            <!-- Replace src with your actual icons -->
             <div class="book-card" onclick="showSlide(4)">
                 <img src="img/book1.png" alt="Book 1">
                 <div class="book-number">1</div>
@@ -444,12 +517,30 @@
 
     <!-- SLIDE 4: Result for Book 1 -->
     <section id="slide4" class="slide fortune-slide">
+
+        <!-- sparkles in background -->
+        <span class="sparkle large sparkle-1">✦</span>
+        <span class="sparkle medium sparkle-2">*</span>
+        <span class="sparkle medium sparkle-3">*</span>
+        <span class="sparkle small sparkle-4">✦</span>
+        <span class="sparkle small sparkle-5">✦</span>
+        <span class="sparkle small sparkle-6">*</span>
+        <span class="sparkle medium sparkle-7">✦</span>
+        <span class="sparkle medium sparkle-8">*</span>
+
         <div class="fortune-layout">
             <div class="thought-bubble">
                 Your brain has entered monk mode!<br><br>
                 If anyone breathes too loud near you today, you might ascend.
                 Go to 3rd floor at the monitor space where even your thoughts whisper.
             </div>
+
+            <!-- little thought bubbles down to the book -->
+            <div class="bubble-chain">
+                <div class="bubble-dot.big"></div>
+                <div class="bubble-dot.small"></div>
+            </div>
+
             <div class="fortune-book-icon">
                 <img src="img/book-open.png" alt="Open book">
             </div>
@@ -461,8 +552,20 @@
         </div>
     </section>
 
+
     <!-- SLIDE 5: Result for Book 2 -->
     <section id="slide5" class="slide fortune-slide">
+
+        <!-- sparkles in background -->
+        <span class="sparkle large sparkle-1">✦</span>
+        <span class="sparkle medium sparkle-2">*</span>
+        <span class="sparkle medium sparkle-3">*</span>
+        <span class="sparkle small sparkle-4">✦</span>
+        <span class="sparkle small sparkle-5">✦</span>
+        <span class="sparkle small sparkle-6">*</span>
+        <span class="sparkle medium sparkle-7">✦</span>
+        <span class="sparkle medium sparkle-8">*</span>
+
         <div class="fortune-layout">
             <div class="thought-bubble">
                 Today’s a sunshine-social kind of day.<br><br>
@@ -474,7 +577,6 @@
             </div>
         </div>
 
-        <!-- arrow -> next page -->
         <div class="fortune-arrow" onclick="showSlide(8)">
             &rarr;
         </div>
@@ -482,6 +584,17 @@
 
     <!-- SLIDE 6: Result for Book 3 -->
     <section id="slide6" class="slide fortune-slide">
+                
+        <!-- sparkles in background -->
+        <span class="sparkle large sparkle-1">✦</span>
+        <span class="sparkle medium sparkle-2">*</span>
+        <span class="sparkle medium sparkle-3">*</span>
+        <span class="sparkle small sparkle-4">✦</span>
+        <span class="sparkle small sparkle-5">✦</span>
+        <span class="sparkle small sparkle-6">*</span>
+        <span class="sparkle medium sparkle-7">✦</span>
+        <span class="sparkle medium sparkle-8">*</span>
+
         <div class="fortune-layout">
             <div class="thought-bubble">
                 Your heart wants cozy, not chaotic.<br><br>
@@ -493,7 +606,6 @@
             </div>
         </div>
 
-        <!-- arrow -> next page -->
         <div class="fortune-arrow" onclick="showSlide(8)">
             &rarr;
         </div>
@@ -501,6 +613,17 @@
 
     <!-- SLIDE 7: Result for Book 4 -->
     <section id="slide7" class="slide fortune-slide">
+                
+        <!-- sparkles in background -->
+        <span class="sparkle large sparkle-1">✦</span>
+        <span class="sparkle medium sparkle-2">*</span>
+        <span class="sparkle medium sparkle-3">*</span>
+        <span class="sparkle small sparkle-4">✦</span>
+        <span class="sparkle small sparkle-5">✦</span>
+        <span class="sparkle small sparkle-6">*</span>
+        <span class="sparkle medium sparkle-7">✦</span>
+        <span class="sparkle medium sparkle-8">*</span>
+
         <div class="fortune-layout">
             <div class="thought-bubble">
                 Plot twist: mystery study route unlocked.<br><br>
@@ -512,7 +635,6 @@
             </div>
         </div>
 
-        <!-- arrow -> back to book selection (or change to 1 to go home) -->
         <div class="fortune-arrow" onclick="showSlide(8)">
             &rarr;
         </div>
@@ -521,19 +643,17 @@
     <!-- SLIDE 8: QR Codes -->
     <section id="slide8" class="slide qr-slide">
         <div class="qr-row">
-
             <div class="qr-card">
                 <div class="qr-title">Want to see real-time<br>crowd levels?</div>
-                <img src="img/qr.png" class="qr-img">
+                <img src="img/qr.png" class="qr-img" alt="Crowd QR">
                 <div class="qr-scan">scan here</div>
             </div>
 
             <div class="qr-card">
                 <div class="qr-title">Want to give<br>feedback?</div>
-                <img src="img/qr.png" class="qr-img">
+                <img src="img/qr.png" class="qr-img" alt="Feedback QR">
                 <div class="qr-scan">scan here</div>
             </div>
-
         </div>
 
         <div class="qr-arrow" onclick="showSlide(1)">
@@ -552,4 +672,5 @@
 
 </body>
 </html>
+
 
