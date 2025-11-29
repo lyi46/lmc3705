@@ -1,1 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LMC 3705 – IMZ Prototypes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #05090c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #f4f4f4;
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page {
+      width: 90vw;
+      max-width: 1400px;
+      padding: 32px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+
+    .tile {
+      position: relative;
+      display: block;
+      background: #fff;
+      border-radius: 25px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 16px 35px rgba(0,0,0,0.18);
+      transform: translateY(0) scale(1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .tile:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 22px 50px rgba(0,0,0,0.26);
+    }
+
+    .tile-label {
+      position: absolute;
+      left: 18px;
+      bottom: 14px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.65);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+  </style>
+</head>
+<body>
+
+  <main class="page">
+    <section class="grid">
+
+      <!-- TOP LEFT -->
+      <a class="tile" href="Lekhya.html">
+        <img src="img/card-lekhya.png" alt="Where should you study today?">
+        <span class="tile-label">Lekhya Adari</span>
+      </a>
+
+      <!-- TOP RIGHT -->
+      <a class="tile" href="matthew.html">
+        <img src="img/card-matthew.png" alt="Study Spot Tracker">
+        <span class="tile-label">Matthew Lee</span>
+      </a>
+
+      <!-- BOTTOM LEFT-->
+      <a class="tile" href="stacey.html">
+        <img src="img/card-stacey.png" alt="The Fortune Book of Price Gilbert">
+        <span class="tile-label">Stacey Uhm</span>
+      </a>
+
+      <!-- BOTTOM RIGHT -->
+      <a class="tile" href="lindsey.html">
+        <img src="img/card-lindsey.png" alt="Cubism: The Living Timeline of Price Gilbert Library">
+        <span class="tile-label">Lindsey Yi</span>
+      </a>
+
+    </section>
+  </main>
+
+</body>
+</html>
