@@ -533,18 +533,11 @@
         <span class="sparkle small sparkle-6">*</span>
 
         <div class="fortune-layout">
-            <div class="thought-bubble">
-                Your brain has entered monk mode!<br><br>
-                If anyone breathes too loud near you today, you might ascend.
-                Go to 3rd floor at the monitor space where even your thoughts whisper.
-            </div>
-
-            <!-- little thought bubbles down to the book -->
+            <div class="thought-bubble"></div>
             <div class="bubble-chain">
                 <div class="bubble-dot.big"></div>
                 <div class="bubble-dot.small"></div>
             </div>
-
             <div class="fortune-book-icon">
                 <img src="img/book-open.png" alt="Open book">
             </div>
@@ -569,10 +562,10 @@
         <span class="sparkle small sparkle-6">*</span>
 
         <div class="fortune-layout">
-            <div class="thought-bubble">
-                Today’s a sunshine-social kind of day.<br><br>
-                Find a lively table on the 2nd floor, invite a friend,
-                and let the background chatter keep your motivation up.
+            <div class="thought-bubble"></div>
+            <div class="bubble-chain">
+                <div class="bubble-dot.big"></div>
+                <div class="bubble-dot.small"></div>
             </div>
             <div class="fortune-book-icon">
                 <img src="img/book-open.png" alt="Open book">
@@ -596,10 +589,10 @@
         <span class="sparkle small sparkle-6">*</span>
 
         <div class="fortune-layout">
-            <div class="thought-bubble">
-                Your heart wants cozy, not chaotic.<br><br>
-                Grab a warm drink and curl up in a quiet corner of 4th,
-                letting your study session feel calm and kind to your brain.
+            <div class="thought-bubble"></div>
+            <div class="bubble-chain">
+                <div class="bubble-dot.big"></div>
+                <div class="bubble-dot.small"></div>
             </div>
             <div class="fortune-book-icon">
                 <img src="img/book-open.png" alt="Open book">
@@ -623,10 +616,10 @@
         <span class="sparkle small sparkle-6">*</span>
 
         <div class="fortune-layout">
-            <div class="thought-bubble">
-                Plot twist: mystery study route unlocked.<br><br>
-                Try a spot you’ve never used before—by the windows, a hidden nook,
-                or a random seat that just “feels right.” New place, new focus.
+            <div class="thought-bubble"></div>
+            <div class="bubble-chain">
+                <div class="bubble-dot.big"></div>
+                <div class="bubble-dot.small"></div>
             </div>
             <div class="fortune-book-icon">
                 <img src="img/book-open.png" alt="Open book">
@@ -669,11 +662,129 @@
     function goHome() {
         window.location.href = 'index.html';
     }
+    // Book 1 → Slide 4
+    const fortunesBook1 = [
+        `You’ve unlocked ultra-focus mode.<br><br>
+        Head to the monitor space on the 3rd floor, plug in, and treat this
+        study block like a mission you absolutely cannot abandon.`,
+
+        `Today is “no distractions, just progress.”<br><br>
+        Find a seat away from walkways and elevators. Turn on Do Not Disturb,
+        and give yourself a clean 45 minutes of deep work.`,
+
+        `Brain fog? Not today.<br><br>
+        Sit somewhere with a clear view on the 4th floor, and tackle
+        the one assignment you’ve been putting off the longest.`,
+
+        `You’re in precision mode.<br><br>
+        Choose a minimal, clutter-free desk in the 3rd floor media zone,
+        and move through your tasks one clean checkmark at a time.`
+    ];
+
+
+    // Book 2 → Slide 5
+    const fortunesBook2 = [
+        `Your social battery wants a soft boost.<br><br>
+        Pick a long table where a bit of chatter lives in the background.
+        Invite a friend or sit near others grinding through their work.`,
+
+        `Collaboration luck is high today.<br><br>
+        Study in the media zone, where you can whisper, swap ideas, and share memes
+        between tasks without feeling out of place.`,
+
+        `You focus best when you’re not alone in the grind.<br><br>
+        Choose a spot with steady movement—people walking by,
+        keyboards tapping—and let that shared energy carry you.`,
+
+        `Today’s vibe: we’re in this together.<br><br>
+        Sit at the long table on the 3rd floor where you can see other students working.
+        Let their effort remind you that you’re not the only one figuring things out.`
+    ];
+
+
+    // Book 3 → Slide 6
+    const fortunesBook3 = [
+        `Your brain is asking for cozy mode.<br><br>
+        Find a soft-lit corner on the 2nd floor, grab a warm drink, and work on tasks
+        that feel gentle but still move you forward.`,
+
+        `Slow and steady wins today.<br><br>
+        Choose a calm space on the 3rd floor with fewer people, breathe,
+        and give yourself permission to take it one page at a time.`,
+
+        `Today you need comfort more than pressure.<br><br>
+        Sit at the monitor space on the 3rd floor. Bring a hoodie,
+        your favorite pen, and let your space hug you into focus.`,
+
+        `It’s a “kind to yourself” study day.<br><br>
+        Mix focused work with small breaks, stretch,
+        and let your study session feel like care instead of punishment in the media zone.`
+    ];
+
+
+    // Book 4 → Slide 7
+    const fortunesBook4 = [
+        `Mystery route unlocked.<br><br>
+        Sit somewhere you’ve never tried before—new floor, new angle,
+        new table—and see how much a tiny change refreshes your focus.`,
+
+        `Today wants you to experiment.<br><br>
+        Try moving spots halfway through your session. Start in one area,
+        then relocate once your brain starts to stall.`,
+
+        `Roll the dice on your study spot.<br><br>
+        Pick a place at random—end of a row, near a pillar, by a window—
+        and let the randomness break your usual routine.`,
+
+        `You’ve entered the “choose your own adventure” zone.<br><br>
+        Follow your gut: the first spot that feels right when you walk in?
+        Claim it and see what kind of work session it becomes.`
+    ];
+
+    // ----- Helper: get week-of-year -----
+    function getWeekOfYear(date) {
+        const oneJan = new Date(date.getFullYear(), 0, 1);
+        const msInDay = 24 * 60 * 60 * 1000;
+        const dayOfYear = Math.floor((date - oneJan) / msInDay) + 1;
+        return Math.floor((dayOfYear + oneJan.getDay()) / 7);
+    }
+
+    function setWeeklyFortunes() {
+        const now = new Date();
+        const week = getWeekOfYear(now);
+
+        // Slide 4 (Book 1)
+        const bubble4 = document.querySelector('#slide4 .thought-bubble');
+        if (bubble4) {
+            const i = week % fortunesBook1.length;
+            bubble4.innerHTML = fortunesBook1[i];
+        }
+
+        // Slide 5 (Book 2)
+        const bubble5 = document.querySelector('#slide5 .thought-bubble');
+        if (bubble5) {
+            const i = week % fortunesBook2.length;
+            bubble5.innerHTML = fortunesBook2[i];
+        }
+
+        // Slide 6 (Book 3)
+        const bubble6 = document.querySelector('#slide6 .thought-bubble');
+        if (bubble6) {
+            const i = week % fortunesBook3.length;
+            bubble6.innerHTML = fortunesBook3[i];
+        }
+
+        // Slide 7 (Book 4)
+        const bubble7 = document.querySelector('#slide7 .thought-bubble');
+        if (bubble7) {
+            const i = week % fortunesBook4.length;
+            bubble7.innerHTML = fortunesBook4[i];
+        }
+    }
+
+    // Run once when the page loads
+    window.addEventListener('DOMContentLoaded', setWeeklyFortunes);
 </script>
 
 </body>
 </html>
-
-
-
-
