@@ -141,8 +141,8 @@
             font-size: 22px;
             font-weight: 600;
             color: var(--yellow-light);
-            max-width: 70%;          /* shorter pill, not full width */
-            align-self: flex-end;    /* right-align pill like the button */
+            max-width: 70%; 
+            align-self: flex-end; 
         }
         .cta-button {
             align-self: flex-end;
@@ -413,21 +413,31 @@
             margin-top: 4px;
         }
 
-        .qr-arrow {
+        .exit-button {
             position: absolute;
             right: 40px;
             bottom: 32px;
-            width: 120px;
-            height: 64px;
-            background: var(--orange-main);
+            background: var(--yellow-light);
             border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 38px;
-            color: var(--yellow-light);
+            padding: 18px 48px;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--orange-main);
+            border: none;
             cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
         }
+
+        .exit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            background: #fff8bf;
+        }
+        .exit-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
     </style>
 </head>
 <body>
@@ -528,6 +538,8 @@
                 If anyone breathes too loud near you today, you might ascend.
                 Go to 3rd floor at the monitor space where even your thoughts whisper.
             </div>
+
+            <!-- little thought bubbles down to the book -->
             <div class="bubble-chain">
                 <div class="bubble-dot.big"></div>
                 <div class="bubble-dot.small"></div>
@@ -537,6 +549,8 @@
                 <img src="img/book-open.png" alt="Open book">
             </div>
         </div>
+
+        <!-- arrow -> next page -->
         <div class="fortune-arrow" onclick="showSlide(8)">
             &rarr;
         </div>
@@ -640,9 +654,9 @@
             </div>
         </div>
 
-        <div class="qr-arrow" onclick="showSlide(1)">
-            &rarr;
-        </div>
+        <button class="exit-button" onclick="goHome()">
+            Exit
+        </button>
     </section>
 </div>
 
@@ -652,10 +666,14 @@
         slides.forEach(s => s.classList.remove('active'));
         document.getElementById('slide' + n).classList.add('active');
     }
+    function goHome() {
+        window.location.href = 'index.html';
+    }
 </script>
 
 </body>
 </html>
+
 
 
 
