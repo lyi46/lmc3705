@@ -46,20 +46,21 @@
             position: absolute;
             inset: 0;
             padding: 32px 40px;
-            display: none;
+            display: none;           /* hidden by default */
         }
 
         .slide.active {
-            display: flex;
+            display: flex;          /* visible slide */
         }
 
-        /* =============== SLIDE 1 ================= */
+        /* =============== SLIDE 1 (start page) ================= */
         .page-layout {
             width: 100%;
             display: flex;
             gap: 40px;
         }
 
+        /* LEFT COLUMN ------------------------------------------------------ */
         .left {
             flex: 0 0 36%;
             display: flex;
@@ -100,6 +101,7 @@
             color: var(--yellow-light);
         }
 
+        /* RIGHT COLUMN ----------------------------------------------------- */
         .right {
             flex: 1;
             display: flex;
@@ -121,6 +123,7 @@
             display: block;
         }
 
+        /* Wrap pill + button so right edges line up */
         .cta-row {
             display: flex;
             flex-direction: column;
@@ -132,7 +135,7 @@
             background: var(--orange-main);
             border-radius: 999px;
             padding: 24px 40px;
-            width: 100%;
+            width: 100%;                 /* full width so button aligns to right edge */
             text-align: center;
             font-size: 26px;
             font-weight: 600;
@@ -163,7 +166,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        /* =============== SLIDE 2 (Instructions) ================= */
+        /* =============== SLIDE 2 (instructions) ================= */
         .instructions-slide {
             justify-content: center;
             align-items: center;
@@ -199,6 +202,86 @@
             justify-content: center;
             font-size: 42px;
             color: var(--yellow-light);
+            cursor: pointer;
+        }
+
+        /* =============== SLIDE 3 (book choices) ================= */
+        .books-slide {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .books-row {
+            display: flex;
+            gap: 64px;
+        }
+
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .book-card img {
+            width: 200px;
+            height: auto;
+        }
+
+        .book-number {
+            margin-top: 12px;
+            font-size: 24px;
+            color: var(--orange-main);
+            font-weight: 700;
+        }
+
+        /* =============== FORTUNE SLIDES (4–7) ================= */
+        .fortune-slide {
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .fortune-layout {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thought-bubble {
+            background: var(--yellow-light);
+            color: var(--orange-main);
+            border-radius: 999px;
+            padding: 40px 80px;
+            max-width: 70%;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+
+        .fortune-book-icon img {
+            width: 230px;
+            height: auto;
+        }
+
+        .fortune-arrow {
+            position: absolute;
+            right: 48px;
+            bottom: 40px;
+            width: 140px;
+            height: 74px;
+            background: var(--orange-main);
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: var(--yellow-light);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -208,7 +291,7 @@
     <!-- SLIDE 1: Start page -->
     <section id="slide1" class="slide active">
         <main class="page-layout">
-
+            <!-- LEFT SIDE -->
             <section class="left">
                 <div class="arrow-pill">
                     &rarr;
@@ -225,8 +308,10 @@
                 </div>
             </section>
 
+            <!-- RIGHT SIDE -->
             <section class="right">
                 <div class="hero-image">
+                    <!-- Replace src with your actual image file -->
                     <img src="img/price-gilbert.jpg" alt="Students studying in Price Gilbert Library">
                 </div>
 
@@ -234,7 +319,8 @@
                     <div class="cta-pill">
                         Don't know where to study? Let the Fortune Book guide you!
                     </div>
-                    
+
+                    <!-- Click -> go to Instructions -->
                     <button class="cta-button" onclick="showSlide(2)">
                         Click here
                     </button>
@@ -251,8 +337,111 @@
             it will reveal your “study destiny” for today. Follow the recommendation
             and enjoy the productivity boost
         </div>
-        
-        <div class="instructions-arrow">
+
+        <!-- Next arrow -> go to book choices -->
+        <div class="instructions-arrow" onclick="showSlide(3)">
+            &rarr;
+        </div>
+    </section>
+
+    <!-- SLIDE 3: Four books to choose -->
+    <section id="slide3" class="slide books-slide">
+        <div class="books-row">
+            <!-- Replace src with your actual icons -->
+            <div class="book-card" onclick="showSlide(4)">
+                <img src="img/book1.png" alt="Book 1">
+                <div class="book-number">1</div>
+            </div>
+
+            <div class="book-card" onclick="showSlide(5)">
+                <img src="img/book2.png" alt="Book 2">
+                <div class="book-number">2</div>
+            </div>
+
+            <div class="book-card" onclick="showSlide(6)">
+                <img src="img/book3.png" alt="Book 3">
+                <div class="book-number">3</div>
+            </div>
+
+            <div class="book-card" onclick="showSlide(7)">
+                <img src="img/book4.png" alt="Book 4">
+                <div class="book-number">4</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: Result for Book 1 -->
+    <section id="slide4" class="slide fortune-slide">
+        <div class="fortune-layout">
+            <div class="thought-bubble">
+                Your brain has entered monk mode!<br><br>
+                If anyone breathes too loud near you today, you might ascend.
+                Go to 3rd floor at the monitor space where even your thoughts whisper.
+            </div>
+            <div class="fortune-book-icon">
+                <img src="img/book-open.png" alt="Open book">
+            </div>
+        </div>
+
+        <!-- arrow -> next page -->
+        <div class="fortune-arrow" onclick="showSlide(5)">
+            &rarr;
+        </div>
+    </section>
+
+    <!-- SLIDE 5: Result for Book 2 -->
+    <section id="slide5" class="slide fortune-slide">
+        <div class="fortune-layout">
+            <div class="thought-bubble">
+                Today’s a sunshine-social kind of day.<br><br>
+                Find a lively table on the 2nd floor, invite a friend,
+                and let the background chatter keep your motivation up.
+            </div>
+            <div class="fortune-book-icon">
+                <img src="img/book-open.png" alt="Open book">
+            </div>
+        </div>
+
+        <!-- arrow -> next page -->
+        <div class="fortune-arrow" onclick="showSlide(6)">
+            &rarr;
+        </div>
+    </section>
+
+    <!-- SLIDE 6: Result for Book 3 -->
+    <section id="slide6" class="slide fortune-slide">
+        <div class="fortune-layout">
+            <div class="thought-bubble">
+                Your heart wants cozy, not chaotic.<br><br>
+                Grab a warm drink and curl up in a quiet corner of 4th floor,
+                letting your study session feel calm and kind to your brain.
+            </div>
+            <div class="fortune-book-icon">
+                <img src="img/book-open.png" alt="Open book">
+            </div>
+        </div>
+
+        <!-- arrow -> next page -->
+        <div class="fortune-arrow" onclick="showSlide(7)">
+            &rarr;
+        </div>
+    </section>
+
+    <!-- SLIDE 7: Result for Book 4 -->
+    <section id="slide7" class="slide fortune-slide">
+        <div class="fortune-layout">
+            <div class="thought-bubble">
+                Plot twist: mystery study route unlocked.<br><br>
+                Try a spot you’ve never used before—by the windows, a hidden nook,
+                or a random seat that just “feels right.” New place, new focus.
+            </div>
+            <div class="fortune-book-icon">
+                <img src="img/book-open.png" alt="Open book">
+            </div>
+        </div>
+
+        <!-- arrow -> back to book selection (or change to 1 to go home) -->
+        <div class="fortune-arrow" onclick="showSlide(3)">
             &rarr;
         </div>
     </section>
@@ -268,3 +457,4 @@
 
 </body>
 </html>
+
