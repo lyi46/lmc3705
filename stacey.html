@@ -30,26 +30,36 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
 
-        .page {
-            width: 100%;
-            max-width: 1360px;
-            padding: 32px 40px;
-            display: flex;
-            gap: 40px;
-        }
-
+        /* 16:9 wrapper for all slides */
         .frame {
             width: 90vw;
             aspect-ratio: 16 / 9;
             background: var(--bg-dark);
-            display: flex;
-            gap: 40px;
-            padding: 32px;
+            position: relative;
         }
 
-        /* LEFT COLUMN ------------------------------------------------------ */
+        /* Generic slide container */
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 32px 40px;
+            display: none;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        /* =============== SLIDE 1 ================= */
+        .page-layout {
+            width: 100%;
+            display: flex;
+            gap: 40px;
+        }
+
         .left {
             flex: 0 0 36%;
             display: flex;
@@ -90,7 +100,6 @@
             color: var(--yellow-light);
         }
 
-        /* RIGHT COLUMN ----------------------------------------------------- */
         .right {
             flex: 1;
             display: flex;
@@ -112,13 +121,18 @@
             display: block;
         }
 
+        .cta-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 16px;
+        }
+
         .cta-pill {
             background: var(--orange-main);
             border-radius: 999px;
             padding: 24px 40px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
+            width: 100%;
             text-align: center;
             font-size: 26px;
             font-weight: 600;
@@ -148,42 +162,109 @@
             transform: translateY(0);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
+
+        /* =============== SLIDE 2 (Instructions) ================= */
+        .instructions-slide {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .instructions-box {
+            background: var(--yellow-light);
+            padding: 48px 80px;
+            border-radius: 64px;
+            max-width: 70%;
+            text-align: center;
+            color: var(--orange-main);
+            font-size: 28px;
+        }
+
+        .instructions-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-decoration: underline;
+        }
+
+        .instructions-arrow {
+            position: absolute;
+            right: 48px;
+            bottom: 40px;
+            width: 130px;
+            height: 70px;
+            background: var(--orange-main);
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: var(--yellow-light);
+        }
     </style>
 </head>
 <body>
-    <main class="page">
-        <!-- LEFT SIDE -->
-        <section class="left">
-            <div class="arrow-pill">
-                &rarr;
-            </div>
 
-            <div class="title-card">
-                <div class="title-icon">*</div>
-                <h1 class="title-text">
-                    The Fortune<br>
-                    Book of<br>
-                    Price<br>
-                    Gilbert
-                </h1>
-            </div>
-        </section>
+<div class="frame">
+    <!-- SLIDE 1: Start page -->
+    <section id="slide1" class="slide active">
+        <main class="page-layout">
 
-        <!-- RIGHT SIDE -->
-        <section class="right">
-            <div class="hero-image">
-                <!-- Replace src with your actual image file -->
-                <img src="img/price-gilbert.jpg" alt="Students studying in Price Gilbert Library">
-            </div>
+            <section class="left">
+                <div class="arrow-pill">
+                    &rarr;
+                </div>
 
-            <div class="cta-pill">
-                Don't know where to study? Let the Fortune Book guide you!
-            </div>
+                <div class="title-card">
+                    <div class="title-icon">*</div>
+                    <h1 class="title-text">
+                        The Fortune<br>
+                        Book of<br>
+                        Price<br>
+                        Gilbert
+                    </h1>
+                </div>
+            </section>
 
-            <button class="cta-button">
-                Click here
-            </button>
-        </section>
-    </main>
+            <section class="right">
+                <div class="hero-image">
+                    <img src="img/price-gilbert.jpg" alt="Students studying in Price Gilbert Library">
+                </div>
+
+                <div class="cta-row">
+                    <div class="cta-pill">
+                        Don't know where to study? Let the Fortune Book guide you!
+                    </div>
+                    
+                    <button class="cta-button" onclick="showSlide(2)">
+                        Click here
+                    </button>
+                </div>
+            </section>
+        </main>
+    </section>
+
+    <!-- SLIDE 2: Instructions -->
+    <section id="slide2" class="slide instructions-slide">
+        <div class="instructions-box">
+            <div class="instructions-title">Instructions</div>
+            Choose one book based on your vibe! When they click the book,
+            it will reveal your “study destiny” for today. Follow the recommendation
+            and enjoy the productivity boost
+        </div>
+        
+        <div class="instructions-arrow">
+            &rarr;
+        </div>
+    </section>
+</div>
+
+<script>
+    function showSlide(n) {
+        const slides = document.querySelectorAll('.slide');
+        slides.forEach(s => s.classList.remove('active'));
+        document.getElementById('slide' + n).classList.add('active');
+    }
+</script>
+
 </body>
 </html>
