@@ -10,54 +10,68 @@
       margin: 0;
       padding: 0;
     }
+
+    /* Back to Home Button */
+    .home-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #ffffff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #0047ff;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+      border: 1px solid #dfe3ee;
+      z-index: 1000;
+    }
+    .home-btn:hover {
+      background: #f4f6ff;
+    }
+
     .container {
       max-width: 750px;
-      margin: 40px auto;
+      margin: 80px auto 40px;
       background: #ffffff;
       padding: 28px 32px 32px;
       border-radius: 16px;
       box-shadow: 0 10px 24px rgba(0,0,0,0.08);
     }
-    h1 {
-      margin-bottom: 6px;
-    }
-    .subtitle {
-      color: #555;
-      font-size: 0.95rem;
-      margin-top: 0;
-      margin-bottom: 18px;
-    }
-    .step {
-      display: none;
-    }
-    .step.active {
-      display: block;
-    }
-    .step h2 {
-      font-size: 1.25rem;
+
+    h1 { margin-bottom: 6px; }
+    .subtitle { color: #555; font-size: 0.95rem; margin-top: 0; margin-bottom: 18px; }
+
+    .step { display: none; }
+    .step.active { display: block; }
+
+    .step-indicator {
+      font-size: 0.85rem;
+      color: #777;
       margin-bottom: 8px;
     }
+
     .helper {
       font-size: 0.9rem;
       color: #666;
       margin-bottom: 12px;
     }
+
     label {
       display: block;
       margin: 8px 0;
       cursor: pointer;
       font-size: 0.95rem;
     }
-    input[type="radio"] {
-      margin-right: 6px;
-      transform: translateY(1px);
-    }
+
+    input[type="radio"] { margin-right: 6px; transform: translateY(1px); }
+
     .buttons {
       margin-top: 24px;
       display: flex;
       justify-content: space-between;
-      gap: 8px;
     }
+
     button {
       padding: 10px 20px;
       font-size: 1rem;
@@ -66,22 +80,19 @@
       cursor: pointer;
       font-weight: 600;
     }
+
     .btn-primary {
       background: #0047ff;
       color: white;
     }
+
     .btn-secondary {
       background: #e4e6eb;
       color: #222;
     }
-    button:hover {
-      filter: brightness(1.05);
-    }
-    .step-indicator {
-      font-size: 0.85rem;
-      color: #777;
-      margin-bottom: 8px;
-    }
+
+    button:hover { filter: brightness(1.05); }
+
     /* Result styling */
     #resultBox {
       margin-top: 10px;
@@ -90,25 +101,30 @@
       background: #f0f4ff;
       border: 1px solid #c5d3ff;
     }
+
     .spot-name {
       font-weight: 700;
       font-size: 1.1rem;
     }
+
     .noise-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 14px;
       font-size: 0.9rem;
     }
+
     .noise-table th, .noise-table td {
       padding: 8px 10px;
       border-bottom: 1px solid #ddd;
       text-align: left;
     }
+
     .highlight {
       background: #e6ecff;
       font-weight: 600;
     }
+
     .small {
       margin-top: 8px;
       font-size: 0.8rem;
@@ -117,59 +133,64 @@
   </style>
 </head>
 <body>
+
+<!-- Back to Home Button -->
+<a href="https://lyi46.github.io/lmc3705/" class="home-btn">← Back to Home</a>
+
 <div class="container">
   <h1>PG3 Study Spot Finder</h1>
-  <p class="subtitle">Answer each question one by one. At the end, we’ll show your best PG3 study spot and its average noise level.</p>
+  <p class="subtitle">Answer each question one by one. Your best PG3 study spot will appear at the end.</p>
 
-  <!-- Step 1: Noise preference -->
+  <!-- Step 1 -->
   <div class="step active" id="step-1">
     <div class="step-indicator">Step 1 of 3</div>
-    <h2>What noise level do you prefer when you study?</h2>
+    <h2>What noise level do you prefer?</h2>
     <p class="helper">Pick the one that feels most comfortable for you.</p>
-    <label><input type="radio" name="noise" value="quiet"> Quiet (library vibes, minimal talking)</label>
-    <label><input type="radio" name="noise" value="normal"> Normal (soft talking, light background noise)</label>
-    <label><input type="radio" name="noise" value="loud"> Loud (don’t mind talking and movement)</label>
+
+    <label><input type="radio" name="noise" value="quiet"> Quiet</label>
+    <label><input type="radio" name="noise" value="normal"> Normal</label>
+    <label><input type="radio" name="noise" value="loud"> Loud</label>
 
     <div class="buttons">
       <span></span>
-      <button class="btn-primary" type="button" onclick="nextStep(1)">Next</button>
+      <button class="btn-primary" onclick="nextStep(1)">Next</button>
     </div>
   </div>
 
-  <!-- Step 2: Crowd preference -->
+  <!-- Step 2 -->
   <div class="step" id="step-2">
     <div class="step-indicator">Step 2 of 3</div>
     <h2>How busy do you like the space to feel?</h2>
-    <p class="helper">Think about the number of people and overall energy.</p>
-    <label><input type="radio" name="crowd" value="low"> Low — I like emptier, calm spaces</label>
-    <label><input type="radio" name="crowd" value="medium"> Medium — A few people is good</label>
-    <label><input type="radio" name="crowd" value="high"> High — I like high energy with lots of people</label>
+
+    <label><input type="radio" name="crowd" value="low"> Low energy</label>
+    <label><input type="radio" name="crowd" value="medium"> Medium energy</label>
+    <label><input type="radio" name="crowd" value="high"> High energy</label>
 
     <div class="buttons">
-      <button class="btn-secondary" type="button" onclick="prevStep(2)">Back</button>
-      <button class="btn-primary" type="button" onclick="nextStep(2)">Next</button>
+      <button class="btn-secondary" onclick="prevStep(2)">Back</button>
+      <button class="btn-primary" onclick="nextStep(2)">Next</button>
     </div>
   </div>
 
-  <!-- Step 3: Study type -->
+  <!-- Step 3 -->
   <div class="step" id="step-3">
     <div class="step-indicator">Step 3 of 3</div>
     <h2>What do you mostly do in PG3?</h2>
-    <p class="helper">This helps us pick between solo vs. group areas.</p>
-    <label><input type="radio" name="studyType" value="solo"> Solo deep work (coding, writing, reading)</label>
-    <label><input type="radio" name="studyType" value="group"> Group work / talking with friends</label>
-    <label><input type="radio" name="studyType" value="mix"> A mix of solo and group</label>
+
+    <label><input type="radio" name="studyType" value="solo"> Solo work</label>
+    <label><input type="radio" name="studyType" value="group"> Group work</label>
+    <label><input type="radio" name="studyType" value="mix"> A mix</label>
 
     <div class="buttons">
-      <button class="btn-secondary" type="button" onclick="prevStep(3)">Back</button>
-      <button class="btn-primary" type="button" onclick="showResult()">See My Result</button>
+      <button class="btn-secondary" onclick="prevStep(3)">Back</button>
+      <button class="btn-primary" onclick="showResult()">See My Result</button>
     </div>
   </div>
 
   <!-- Step 4: Result -->
   <div class="step" id="step-4">
     <div class="step-indicator">Result</div>
-    <h2>Your best PG3 match:</h2>
+    <h2>Your recommended PG3 study spot:</h2>
 
     <div id="resultBox">
       <p class="spot-name" id="spotName"></p>
@@ -200,59 +221,46 @@
       </table>
 
       <p class="small">
-        The highlighted row shows the section whose average noise best matches what you picked.
+        The highlighted row best matches the conditions you selected.
       </p>
     </div>
 
     <div class="buttons">
-      <button class="btn-secondary" type="button" onclick="restart()">Start Over</button>
+      <button class="btn-secondary" onclick="restart()">Start Over</button>
       <span></span>
     </div>
   </div>
 </div>
 
 <script>
-  function showStep(stepNumber) {
-    const steps = document.querySelectorAll('.step');
-    steps.forEach(step => step.classList.remove('active'));
-    const current = document.getElementById('step-' + stepNumber);
-    if (current) {
-      current.classList.add('active');
-    }
+  function showStep(n) {
+    document.querySelectorAll(".step").forEach(step => step.classList.remove("active"));
+    document.getElementById("step-" + n).classList.add("active");
   }
 
-  function validateStep(stepNumber) {
-    if (stepNumber === 1) {
-      const noise = document.querySelector('input[name="noise"]:checked');
-      if (!noise) {
-        alert("Please select a noise level.");
-        return false;
-      }
+  function nextStep(stepNum) {
+    if (!validate(stepNum)) return;
+    showStep(stepNum + 1);
+  }
+
+  function prevStep(stepNum) {
+    showStep(stepNum - 1);
+  }
+
+  function validate(stepNum) {
+    if (stepNum === 1 && !document.querySelector('input[name="noise"]:checked')) {
+      alert("Please select a noise preference.");
+      return false;
     }
-    if (stepNumber === 2) {
-      const crowd = document.querySelector('input[name="crowd"]:checked');
-      if (!crowd) {
-        alert("Please select how busy you want the space to feel.");
-        return false;
-      }
+    if (stepNum === 2 && !document.querySelector('input[name="crowd"]:checked')) {
+      alert("Please select a crowd preference.");
+      return false;
     }
-    if (stepNumber === 3) {
-      const studyType = document.querySelector('input[name="studyType"]:checked');
-      if (!studyType) {
-        alert("Please select what you mostly do in PG3.");
-        return false;
-      }
+    if (stepNum === 3 && !document.querySelector('input[name="studyType"]:checked')) {
+      alert("Please select what you mostly do in PG3.");
+      return false;
     }
     return true;
-  }
-
-  function nextStep(currentStep) {
-    if (!validateStep(currentStep)) return;
-    showStep(currentStep + 1);
-  }
-
-  function prevStep(currentStep) {
-    showStep(currentStep - 1);
   }
 
   function clearHighlights() {
@@ -262,52 +270,50 @@
   }
 
   function showResult() {
-    if (!validateStep(3)) return;
+    if (!validate(3)) return;
 
     const noise = document.querySelector('input[name="noise"]:checked').value;
     const crowd = document.querySelector('input[name="crowd"]:checked').value;
     const studyType = document.querySelector('input[name="studyType"]:checked').value;
 
-    let spot = "";
-    let description = "";
-
     clearHighlights();
 
-    // Very simple logic (you can tweak for your real PG3 map)
+    let spot = "";
+    let desc = "";
+
     if (noise === "quiet") {
       spot = "Quiet Zone / Individual Desks";
-      description = "This area stays the calmest and is best for deep focus and solo work.";
+      desc = "A calm, low-distraction area great for focused work.";
       document.getElementById("quietRow").classList.add("highlight");
+
     } else if (noise === "normal") {
       spot = "Window Seating Area";
-      description = "You get a balanced noise level with some background activity and natural light.";
+      desc = "A balanced environment with natural light and moderate activity.";
       document.getElementById("windowRow").classList.add("highlight");
-    } else { // loud
+
+    } else {
       if (studyType === "group" || crowd === "high") {
         spot = "Long Tables / Group Study Area";
-        description = "This space fits group work and higher energy, with more conversation and movement.";
+        desc = "A lively space suitable for collaboration and conversation.";
       } else {
         spot = "Window Seating Area";
-        description = "You like a bit of noise, but not too intense, so the window area is a nice middle ground.";
+        desc = "Good if you enjoy a bit of background energy without chaos.";
       }
       document.getElementById("groupRow").classList.add("highlight");
     }
 
     document.getElementById("spotName").textContent = spot;
-    document.getElementById("spotDescription").textContent =
-      description + " Based on your answers, this PG3 section’s average noise level is the best match for you.";
+    document.getElementById("spotDescription").textContent = desc;
 
     showStep(4);
   }
 
   function restart() {
-    // Clear selections
     document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
     clearHighlights();
-    document.getElementById("spotName").textContent = "";
-    document.getElementById("spotDescription").textContent = "";
     showStep(1);
   }
 </script>
+
 </body>
 </html>
