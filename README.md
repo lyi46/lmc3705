@@ -7,7 +7,8 @@ Based on this shared dataset, each team member created an individual project tha
 
 
 ## lehkya.html
-### Title: 
+### Title: Library Seating Quiz
+This quiz is an interactive quiz created on Twine inspired by Buzzfeed's quizzes. Students answer questions about their ideal environemtal factors (ex. noise) that helps them study and they will get a location in the price gilbert area that fits their criteria (hopefully)
 
 ## stacey.html
 ### Title: The Fortune Book of Price Gilbert
