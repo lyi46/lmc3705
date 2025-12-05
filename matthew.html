@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PG3 Study Spot Finder</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 24px 28px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.3rem;
+    }
+    p.subtitle {
+      margin-top: 0;
+      color: #555;
+      font-size: 0.95rem;
+    }
+    .question-group {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+    .question-group:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+    .question-group h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+    .question-group p.helper {
+      margin-top: 0;
+      color: #666;
+      font-size: 0.85rem;
+    }
+    label {
+      display: block;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+    input[type="radio"] {
+      margin-right: 6px;
+      transform: translateY(1px);
+    }
+    button {
+      margin-top: 24px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #0047ff;
+      color: white;
+      font-weight: 600;
+    }
+    button:hover {
+      filter: brightness(1.05);
+    }
+    #result {
+      margin-top: 24px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #f0f4ff;
+      border: 1px solid #c5d3ff;
+      display: none;
+    }
+    #result h2 {
+      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 1.1rem;
+    }
+    #result p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+    }
+    .spot-name {
+      font-weight: 700;
+    }
+    .small {
+      font-size: 0.8rem;
+      color: #777;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>PG3 Study Spot Finder</h1>
+  <p class="subtitle">Answer a few quick questions to see which area in PG3 might fit your study style best.</p>
+
+  <!-- Q1: Noise -->
+  <div class="question-group">
+    <h2>1. What kind of noise level do you like when you study?</h2>
+    <p class="helper">Choose the option that feels most comfortable for you.</p>
+    <label><input type="radio" name="noise" value="quiet" /> Very quiet (library vibes, minimal talking)</label>
+    <label><input type="radio" name="noise" value="normal" /> Normal (soft talking, light background noise)</label>
+    <label><input type="radio" name="noise" value="loud" /> Lively (don’t mind talking & movement around me)</label>
+  </div>
+
+  <!-- Q2: People / energy level -->
+  <div class="question-group">
+    <h2>2. How busy do you like the space to be?</h2>
+    <p class="helper">Think about how many people around you feels “right.”</p>
+    <label><input type="radio" name="crowd" value="low" /> Low — I like emptier spaces</label>
+    <label><input type="radio" name="crowd" value="medium" /> Medium — A few people is nice</label>
+    <label><input type="radio" name="crowd" value="high" /> High — I like high energy, lots of people around</label>
+  </div>
+
+  <!-- Q3: Study type -->
+  <div class="question-group">
+    <h2>3. What are you mostly doing in PG3?</h2>
+    <label><input type="radio" name="studyType" value="solo" /> Solo deep work (coding, writing, reading)</label>
+    <label><input type="radio" name="studyType" value="group" /> Group work / talking with friends</label>
+    <label><input type="radio" name="studyType" value="mix" /> A mix of solo and group work</label>
+  </div>
+
+  <!-- Q4: Outlets / setup -->
+  <div class="question-group">
+    <h2>4. What do you care about more?</h2>
+    <label><input type="radio" name="priority" value="outlet" /> Power outlets + comfortable desk setup</label>
+    <label><input type="radio" name="priority" value="view" /> Nice view / natural light</label>
+    <label><input type="radio" name="priority" value="none" /> I don’t really care, anywhere is fine</label>
+  </div>
+
+  <button type="button" onclick="calculateSpot()">Find My PG3 Study Spot</button>
+
+  <div id="result">
+    <h2>Your best match in PG3:</h2>
+    <p><span class="spot-name" id="spotName"></span></p>
+    <p id="spotDescription"></p>
+    <p class="small" id="spotWhy"></p>
+  </div>
+</div>
+
+<script>
+  function getCheckedValue(name) {
+    const checked = document.querySelector('input[name="' + name + '"]:checked');
+    return checked ? checked.value : null;
+  }
+
+  function calculateSpot() {
+    const noise = getCheckedValue("noise");
+    const crowd = getCheckedValue("crowd");
+    const studyType = getCheckedValue("studyType");
+    const priority = getCheckedValue("priority");
+
+    if (!noise || !crowd || !studyType || !priority) {
+      alert("Please answer all questions before submitting.");
+      return;
+    }
+
+    let spot = "";
+    let description = "";
+    let why = "";
+
+    // Simple rules – you can customize these names to match real PG3 zones
+    if (noise === "quiet" && (studyType === "solo" || studyType === "mix") && crowd !== "high") {
+      spot = "Quiet Zone / Carrel Desks";
+      description =
+        "These seats are tucked away and usually stay calmer, so they’re better for deep focus, reading, or coding.";
+      why =
+        "You like quieter spaces with less people around, so a low-energy corner is the best fit for you.";
+    } else if (noise === "normal" && studyType === "solo" && priority === "view") {
+      spot = "Window Seats Along the Perimeter";
+      description =
+        "You’ll get natural light and a steady background hum of people without it feeling too chaotic.";
+      why =
+        "You prefer a ‘normal’ noise level and care about the view, so window-side desks are a nice balance.";
+    } else if ((noise === "normal" || noise === "loud") && studyType === "group") {
+      if (crowd === "high" || noise === "loud") {
+        spot = "Long Tables / Group Study Area";
+        description =
+          "This area is open and social, which makes it easier to talk, brainstorm, and work with friends.";
+        why =
+          "You don’t mind noise or higher energy, and you’re here mainly for group work, so this shared zone fits you best.";
+      } else {
+        spot = "Small Group Tables";
+        description =
+          "You still get space to talk with your group, but it won’t feel as busy as the main open area.";
+        why =
+          "You want to collaborate but not be in the busiest part of PG3, so a small table is a good in-between.";
+      }
+    } else if (noise === "quiet" && studyType === "group") {
+      spot = "Booked Study Rooms (When Available)";
+      description =
+        "If you can reserve one, a study room lets you talk quietly with your group without disturbing others.";
+      why =
+        "You want quiet but still need to talk, so a semi-private room is ideal when possible.";
+    } else if (priority === "outlet" && (studyType === "solo" || noise === "normal")) {
+      spot = "Individual Desks with Outlets";
+      description =
+        "These seats usually have reliable power and enough space for your laptop, notes, and charger.";
+      why =
+        "You care about having a stable setup and access to power, so standard desks with outlets are the safest choice.";
+    } else {
+      spot = "Flexible Seating Area";
+      description =
+        "Try the middle-energy sections where you can adjust by moving closer to or farther from busy areas.";
+      why =
+        "Your preferences are pretty flexible, so starting in a central area makes it easy to move until it feels right.";
+    }
+
+    document.getElementById("spotName").textContent = spot;
+    document.getElementById("spotDescription").textContent = description;
+    document.getElementById("spotWhy").textContent = "Why: " + why;
+    document.getElementById("result").style.display = "block";
+  }
+</script>
+</body>
+</html>
