@@ -58,6 +58,22 @@
     pointer-events:none;
   }
 
+  /* subtle warm pulse overlay (cozy effect) */
+  .warm-overlay {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background: radial-gradient(circle at 40% 35%, rgba(255,180,120,0.08), transparent 30%);
+    mix-blend-mode: screen;
+    animation: warmPulse 6s ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes warmPulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.6; }
+  }
+
   /* screens (A: form, B: graph) */
   .screen {
     position:absolute;
@@ -182,6 +198,32 @@
     gap:12px;
   }
 
+  /* chart body with y-axis */
+  .chart-body {
+    display:flex;
+    gap:14px;
+    align-items:flex-end;
+    width: 100%;
+    height: 300px;
+  }
+  .y-axis {
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    align-items:flex-end;
+    min-width:50px;
+    color:#2a4360;
+    font-size:12px;
+    font-weight:600;
+    line-height:1;
+    padding:6px 6px 2px 0;
+    user-select: none;
+  }
+  .plot-area {
+    position:relative;
+    flex:1;
+  }
+
   /* timeline area */
   .timeline {
     position:relative;
@@ -196,6 +238,26 @@
     background: linear-gradient(180deg, rgba(158,197,255,1), rgba(120,160,255,1));
     transition: height 700ms cubic-bezier(.2,.9,.2,1);
     box-shadow: 0 6px 18px rgba(55,95,200,0.08);
+    min-width: 6px;
+  }
+
+  /* small timeline label row (30-minute increments) */
+  .time-labels {
+    display:flex;
+    gap:6px;
+    margin-top:10px;
+    justify-content:space-between;
+    align-items:flex-start;
+    font-size:11px;
+    color:#324a66;
+    padding: 0 4px;
+    user-select: none;
+  }
+  .time-label {
+    flex: 1;
+    text-align: center;
+    transform: translateY(0);
+    white-space: nowrap;
   }
 
   /* red dot */
@@ -245,6 +307,7 @@
   /* responsiveness (still designed for 1920x1080 but won't break) */
   @media (max-width: 1400px) {
     .viewport { transform: scale(0.8); transform-origin:center; }
+    .time-label { font-size:10px; }
   }
 </style>
 </head>
@@ -252,10 +315,12 @@
   <div class="outer">
     <div id="viewport" class="viewport">
       <div class="bg-overlay"></div>
+      <div class="warm-overlay" aria-hidden="true"></div>
 
       <!-- SCREEN A: the form -->
       <div id="screenA" class="screen active">
         <div class="left">
+          <a href="index.html" class="back" style="display:inline-block; margin-bottom:20px; text-decoration:none;">← Back to Index</a>
           <h1 class="title">Library Energy Predictor</h1>
           <div class="subtitle">
             Tell me your study group size and time range — I'll predict energy / occupancy across the period and show you where *you* land.
@@ -296,7 +361,7 @@
           </div>
 
           <div style="margin-top:8px; font-size:13px; color:#243447; opacity:0.9;">
-            This demo uses a free weather API and Unsplash images to create a photographic background matching current conditions.
+            This demo uses OpenWeather forecast + Unsplash to create a photographic background matching the expected conditions at your selected time.
           </div>
         </div>
       </div>
@@ -327,8 +392,14 @@
             </div>
 
             <div class="chart-card">
-              <div id="timeline" class="timeline" aria-hidden="false"></div>
-              <div id="redDot" class="red-dot" style="left:-50px; bottom:0;"></div>
+              <div class="chart-body">
+                <div class="plot-area">
+                  <div id="timeline" class="timeline" aria-hidden="false"></div>
+                  <div id="redDot" class="red-dot" style="left:-50px; bottom:0;"></div>
+                </div>
+              </div>
+
+              <div id="timeLabels" class="time-labels" aria-hidden="false"></div>
 
               <div class="legend">
                 <div class="small">Predicted energy / occupancy (0–100)</div>
@@ -390,8 +461,20 @@ function goToGraph(){
   qs('screenA').classList.remove('active');
   qs('screenB').classList.add('active');
 
-  // start composition: get weather, then render chart
-  fetchWeatherAndPrepareBackground().then(weatherMain => {
+  // compute midpoint time (minutes since midnight) and convert to a Date (today)
+  const startMinutes = fMin;
+  const totalRange = (tMin > fMin) ? (tMin - fMin) : (tMin + 24*60 - fMin);
+  const userMidMinutes = (startMinutes + totalRange/2) % (24*60);
+
+  // create a Date object in local timezone for today with the midpoint time
+  const now = new Date();
+  const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  targetDate.setMinutes(userMidMinutes);
+
+  // if midpoint is before now and the range likely meant next day (end < start), adjust by 1 day
+  // but our earlier totalRange already handles overnight so targetDate should be correct for today+wrap.
+  // For robust results, we will use forecast list and find closest dt (UTC) to this local target date.
+  fetchWeatherAndPrepareBackground(targetDate).then(weatherMain => {
     // generate predicted timeline and animate
     generatePredictedTimeline({party, from, to, floor, weatherMain});
   }).catch(err=>{
@@ -410,33 +493,69 @@ function goBack(){
   qs('weatherLabel').innerText = '';
   // clear timeline quickly
   qs('timeline').innerHTML = '';
+  qs('timeLabels').innerHTML = '';
   qs('redDot').style.left = '-50px';
 }
 
-/* ----------------- Weather + Unsplash ----------------- */
-async function fetchWeatherAndPrepareBackground(){
-  // fetch weather from OpenWeatherMap (current)
+/* ----------------- Weather + Unsplash (forecast-aware) ----------------- */
+/*
+  We'll use OpenWeather 5-day / 3-hour forecast endpoint:
+  https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+  The "list" contains items with dt (UTC seconds) roughly every 3 hours.
+  We'll find the forecast item whose dt is closest to the target timestamp.
+*/
+async function fetchWeatherAndPrepareBackground(targetLocalDate){
+  // targetLocalDate: JS Date in user's local timezone (America/New_York assumed).
+  // Convert to epoch seconds (UTC) for comparison with forecast dt.
+  const targetEpochSec = Math.floor(targetLocalDate.getTime() / 1000);
+
+  // If API key missing -> fallback immediately
   if (!OPENWEATHER_API_KEY || OPENWEATHER_API_KEY === "YOUR_OPENWEATHERMAP_API_KEY") {
-    // No key supplied: choose a default weather type to keep demo working
     console.warn("OpenWeatherMap API key not set — using default 'Clouds' for background.");
     applyUnsplashBackgroundFor('Clouds');
     qs('weatherLabel').innerText = 'Clouds (demo)';
     return 'Clouds';
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_API_KEY}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    console.warn("Weather fetch failed, using default.");
+  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_API_KEY}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.warn("Weather fetch failed, using default.");
+      applyUnsplashBackgroundFor('Clouds');
+      qs('weatherLabel').innerText = 'Clouds (fallback)';
+      return 'Clouds';
+    }
+    const json = await res.json();
+    if (!json.list || !Array.isArray(json.list) || json.list.length === 0) {
+      applyUnsplashBackgroundFor('Clouds');
+      qs('weatherLabel').innerText = 'Clouds (no forecast)';
+      return 'Clouds';
+    }
+
+    // find the forecast entry with dt closest to our targetEpochSec
+    let best = json.list[0];
+    let bestDiff = Math.abs(best.dt - targetEpochSec);
+    for (let item of json.list) {
+      const diff = Math.abs(item.dt - targetEpochSec);
+      if (diff < bestDiff) {
+        best = item;
+        bestDiff = diff;
+      }
+    }
+    const main = (best.weather && best.weather[0] && best.weather[0].main) ? best.weather[0].main : 'Clear';
+    applyUnsplashBackgroundFor(main);
+    // optional: show more informative label including time of the forecast we used
+    const forecastDate = new Date(best.dt * 1000);
+    const hh = forecastDate.toLocaleString(undefined, {hour: 'numeric', minute:'2-digit'});
+    qs('weatherLabel').innerText = `${main} • forecast ${hh}`;
+    return main;
+  } catch (err) {
+    console.error('Weather fetch error:', err);
     applyUnsplashBackgroundFor('Clouds');
-    qs('weatherLabel').innerText = 'Clouds (fallback)';
+    qs('weatherLabel').innerText = 'Clouds (error)';
     return 'Clouds';
   }
-  const json = await res.json();
-  const main = (json.weather && json.weather[0] && json.weather[0].main) ? json.weather[0].main : 'Clear';
-  applyUnsplashBackgroundFor(main);
-  qs('weatherLabel').innerText = `${main}`;
-  return main;
 }
 
 function applyUnsplashBackgroundFor(weatherMain){
@@ -478,8 +597,8 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
   const container = qs('timeline');
   container.innerHTML = '';
 
-  // produce N samples (e.g., 48 across the time range)
-  const samples = 48;
+  // produce N samples (24 across the time range -> hourly steps)
+  const samples = 24;
   const startMinutes = toMinutes(from);
   const endMinutes = toMinutes(to);
 
@@ -494,16 +613,14 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
   };
   const weatherFactor = weatherBoostMap[weatherMain] || 1.0;
 
-  // center time-of-day mean (use midpoint of selected range)
   const midMinutes = (startMinutes + (totalRange/2)) % (24*60);
-  // convert to a 0-1 day fraction
   const midFrac = midMinutes / (24*60);
 
   // amplitude baseline (0..100)
   const baseAmp = 36;
   const noiseSeed = Math.random() * 1000;
 
-  // generate array
+  // generate array (values correspond to each hourly sample across the selected interval range)
   const values = new Array(samples).fill(0).map((_, i) => {
     const frac = i / (samples - 1); // 0..1 across range
     // map to absolute minutes in day
@@ -523,7 +640,13 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
     // final composition
     let v = baseAmp * rhythm * (0.9 + 0.9 * proximity) * partyFactor * weatherFactor;
     v += noise;
-    v = clamp(Math.round(v), 6, 98);
+
+    // overnight damping: 12:00 AM–6:59 AM keep values low and slightly random
+    if (minute < 7 * 60) {
+      v = Math.random() * 0.001; // roughly 6–14 for very low overnight activity
+    }
+
+    v = clamp(Math.round(v), 1, 98);
     return v;
   });
 
@@ -540,6 +663,9 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
       bar.style.height = (v / 100 * 100) + '%';
     });
   });
+
+  // generate bottom labels for every hour (12:00 AM -> 11:00 PM)
+  populateTimeLabels(); // uses 24 labels
 
   // compute selected "you" position between start & end
   // We'll take the user's "from" time as the start and place the red dot at a representative time:
@@ -579,6 +705,23 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
 
   // label the chart and dot
   qs('dotLabel').innerText = `You · ≈ ${values[index]}% energy/occupancy`;
+}
+
+/* ----------------- Time labels helper ----------------- */
+function populateTimeLabels(){
+  const container = qs('timeLabels');
+  container.innerHTML = '';
+  for (let minutes = 0; minutes <= 23 * 60; minutes += 60) {
+    const hh = Math.floor(minutes / 60);
+    const mm = minutes % 60;
+    const period = hh < 12 ? 'AM' : 'PM';
+    const hour12 = ((hh + 11) % 12) + 1;
+    const labelText = `${(mm===0) ? (hour12 + (hour12 === 12 ? '' : '')) : (hour12 + ':' + String(mm).padStart(2,'0'))}${period}`;
+    const el = document.createElement('div');
+    el.className = 'time-label';
+    el.innerText = labelText;
+    container.appendChild(el);
+  }
 }
 
 /* ----------------- Helpers ----------------- */
