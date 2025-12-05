@@ -204,7 +204,7 @@
     gap:14px;
     align-items:flex-end;
     width: 100%;
-    height: 300px;
+    height: 350px;
   }
   .y-axis {
     display:flex;
@@ -339,11 +339,11 @@
           <div class="row">
             <div style="flex:1">
               <label>From (time)</label>
-              <input id="timeFrom" type="time" value="18:00">
+              <input id="timeFrom" type="time" min="08:00" max="20:00" value="08:00">
             </div>
             <div style="flex:1">
               <label>To (time)</label>
-              <input id="timeTo" type="time" value="20:00">
+              <input id="timeTo" type="time" min="08:00" max="20:00" value="20:00">
             </div>
           </div>
 
@@ -428,6 +428,48 @@ const OPENWEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"; // <-- REPLACE with y
 const LAT = 33.7756;
 const LON = -84.3963;
 
+function toAMPM(timeStr) {
+  let [h, m] = timeStr.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = (h % 12) || 12; // convert 0→12, 13→1, etc.
+  return `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
+}
+
+function updateLightingImage(fromTime) {
+  const img = document.getElementById("lighting-img");  // your image element
+  if (!img) {
+    console.warn("lighting-img element not found.");
+    return;
+  }
+
+  // Convert HH:MM → minutes since midnight
+  const [h, m] = fromTime.split(":").map(Number);
+  const minutes = h * 60 + m;
+
+  // TIME RANGES
+  const morningStart = 8 * 60;      // 8:00 AM
+  const morningEnd   = 11 * 60;     // 11:00 AM
+
+  const midStart     = 11 * 60 + 1; // 11:01 AM
+  const midEnd       = 16 * 60;     // 4:00 PM
+
+  const nightStart   = 16 * 60 + 1; // 4:01 PM
+  const nightEnd     = 20 * 60;     // 8:00 PM
+
+  // Apply correct image
+  if (minutes >= morningStart && minutes <= morningEnd) {
+    img.src = "lm.png";
+  } else if (minutes >= midStart && minutes <= midEnd) {
+    img.src = "lmid.png";
+  } else if (minutes >= nightStart && minutes <= nightEnd) {
+    img.src = "ln.png";
+  } else {
+    console.warn("Start time outside expected range.");
+  }
+}
+
+
+
 /* ----------------- Utilities ----------------- */
 function qs(id){ return document.getElementById(id); }
 function toMinutes(t){ // "HH:MM" -> minutes since midnight
@@ -451,9 +493,15 @@ function goToGraph(){
     alert("Please choose a time range where From and To are different.");
     return;
   }
+  // enforce allowed window 08:00–20:00
+  if (fMin < 8*60 || tMin > 20*60) {
+    alert("Please select times between 8:00 AM and 8:00 PM.");
+    return;
+  }
 
   // pass metadata to screen B
-  qs('metaTime').innerText = `${from} → ${to}`;
+  qs('metaTime').innerText = `${toAMPM(from)} → ${toAMPM(to)}`;
+  updateLightingImage(from);
   qs('metaFloor').innerText = floor;
   qs('metaParty').innerText = `Party size: ${party}`;
 
@@ -497,18 +545,14 @@ function goBack(){
   qs('redDot').style.left = '-50px';
 }
 
-/* ----------------- Weather + Unsplash (forecast-aware) ----------------- */
+/* ----------------- Weather + Unsplash (CURRENT weather) ----------------- */
 /*
-  We'll use OpenWeather 5-day / 3-hour forecast endpoint:
-  https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
-  The "list" contains items with dt (UTC seconds) roughly every 3 hours.
-  We'll find the forecast item whose dt is closest to the target timestamp.
+  This version fetches the CURRENT weather for Atlanta and chooses an Unsplash photographic query
+  that matches the 'main' weather (Clear, Clouds, Rain, Snow, etc.). The function signature is
+  kept the same (accepting targetLocalDate) so other calls don't need changes.
 */
 async function fetchWeatherAndPrepareBackground(targetLocalDate){
-  // targetLocalDate: JS Date in user's local timezone (America/New_York assumed).
-  // Convert to epoch seconds (UTC) for comparison with forecast dt.
-  const targetEpochSec = Math.floor(targetLocalDate.getTime() / 1000);
-
+  // targetLocalDate param is ignored for current-weather fetch but kept for compatibility.
   // If API key missing -> fallback immediately
   if (!OPENWEATHER_API_KEY || OPENWEATHER_API_KEY === "YOUR_OPENWEATHERMAP_API_KEY") {
     console.warn("OpenWeatherMap API key not set — using default 'Clouds' for background.");
@@ -517,7 +561,8 @@ async function fetchWeatherAndPrepareBackground(targetLocalDate){
     return 'Clouds';
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_API_KEY}`;
+  // use current weather endpoint
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_API_KEY}`;
   try {
     const res = await fetch(url);
     if (!res.ok) {
@@ -527,28 +572,20 @@ async function fetchWeatherAndPrepareBackground(targetLocalDate){
       return 'Clouds';
     }
     const json = await res.json();
-    if (!json.list || !Array.isArray(json.list) || json.list.length === 0) {
-      applyUnsplashBackgroundFor('Clouds');
-      qs('weatherLabel').innerText = 'Clouds (no forecast)';
-      return 'Clouds';
+    const main = (json.weather && json.weather[0] && json.weather[0].main) ? json.weather[0].main : 'Clear';
+
+    // apply background and label
+    applyUnsplashBackgroundFor(main);
+
+    // show local time of observation if available
+    if (json.dt) {
+      const obsDate = new Date(json.dt * 1000);
+      const hh = obsDate.toLocaleString(undefined, {hour: 'numeric', minute:'2-digit'});
+      qs('weatherLabel').innerText = `${main} • now (${hh})`;
+    } else {
+      qs('weatherLabel').innerText = `${main}`;
     }
 
-    // find the forecast entry with dt closest to our targetEpochSec
-    let best = json.list[0];
-    let bestDiff = Math.abs(best.dt - targetEpochSec);
-    for (let item of json.list) {
-      const diff = Math.abs(item.dt - targetEpochSec);
-      if (diff < bestDiff) {
-        best = item;
-        bestDiff = diff;
-      }
-    }
-    const main = (best.weather && best.weather[0] && best.weather[0].main) ? best.weather[0].main : 'Clear';
-    applyUnsplashBackgroundFor(main);
-    // optional: show more informative label including time of the forecast we used
-    const forecastDate = new Date(best.dt * 1000);
-    const hh = forecastDate.toLocaleString(undefined, {hour: 'numeric', minute:'2-digit'});
-    qs('weatherLabel').innerText = `${main} • forecast ${hh}`;
     return main;
   } catch (err) {
     console.error('Weather fetch error:', err);
@@ -598,7 +635,7 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
   container.innerHTML = '';
 
   // produce N samples (24 across the time range -> hourly steps)
-  const samples = 24;
+  const samples = 13;
   const startMinutes = toMinutes(from);
   const endMinutes = toMinutes(to);
 
@@ -642,8 +679,9 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
     v += noise;
 
     // overnight damping: 12:00 AM–6:59 AM keep values low and slightly random
+    // produce small values 1..8 so they visually remain low
     if (minute < 7 * 60) {
-      v = Math.random() * 0.001; // roughly 6–14 for very low overnight activity
+      v = 1 + Math.random() * 7; // 1–8
     }
 
     v = clamp(Math.round(v), 1, 98);
@@ -711,7 +749,8 @@ function generatePredictedTimeline({party, from, to, floor, weatherMain}) {
 function populateTimeLabels(){
   const container = qs('timeLabels');
   container.innerHTML = '';
-  for (let minutes = 0; minutes <= 23 * 60; minutes += 60) {
+  // show hourly labels from 8:00 AM to 8:00 PM
+  for (let minutes = 8 * 60; minutes <= 20 * 60; minutes += 60) {
     const hh = Math.floor(minutes / 60);
     const mm = minutes % 60;
     const period = hh < 12 ? 'AM' : 'PM';
@@ -724,10 +763,75 @@ function populateTimeLabels(){
   }
 }
 
+/*******************************************************
+ * YOUR EXISTING CODE — UNCHANGED
+ *******************************************************/
+
+// all your existing variables, sliders, DOM setup, bars, 
+// student activity logic, questionnaire, graph generation, etc.
+// (I am not touching any of your existing logic at all.)
+
+// I am only adding a weather.gov fetch near the bottom where you set the image.
+
+
+/*******************************************************
+ * WEATHER.GOV — DYNAMIC WEATHER ICON FOR ATLANTA
+ *******************************************************/
+
+// 1. Fetch the gridpoint for Atlanta
+// Coordinates used: Atlanta, GA = 33.7490, -84.3880
+fetch("https://api.weather.gov/points/33.7490,-84.3880")
+  .then(response => response.json())
+  .then(pointData => {
+    if (!pointData.properties || !pointData.properties.forecast) {
+      console.error("Weather.gov: No forecast URL found for this location.");
+      return;
+    }
+
+    const forecastURL = pointData.properties.forecast;
+
+    // 2. Fetch the forecast periods (14 total)
+    return fetch(forecastURL);
+  })
+  .then(response => response.json())
+  .then(forecastData => {
+    if (!forecastData.properties || !forecastData.properties.periods) {
+      console.error("Weather.gov: No periods found in forecast data.");
+      return;
+    }
+
+    const periods = forecastData.properties.periods;
+
+    // 3. The "current period" is always periods[0]
+    const current = periods[0];
+
+    // This is the dynamic icon Weather.gov provides
+    const iconURL = current.icon;
+
+    // 4. Put the icon into your image element
+    // MAKE SURE you have an <img id="weather-img"> in your HTML
+    const img = document.getElementById("weather-img");
+    if (img) {
+      img.src = iconURL;
+      img.alt = current.shortForecast || "Weather";
+    } else {
+      console.warn("weather-img element not found in the DOM.");
+    }
+  })
+  .catch(err => {
+    console.error("Weather.gov fetch error:", err);
+  });
+
+
+/*******************************************************
+ * END — Everything else in your file stays exactly the same
+ *******************************************************/
+
+
 /* ----------------- Helpers ----------------- */
 function resetForm(){
   qs('partySize').value = '1';
-  qs('timeFrom').value = '18:00';
+  qs('timeFrom').value = '08:00';
   qs('timeTo').value = '20:00';
   qs('floor').value = '1st Floor';
 }
